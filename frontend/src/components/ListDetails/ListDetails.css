@@ -1,0 +1,126 @@
+#list-details_root {
+    --grid-columns-size-desktop: 25px 1fr 82px 25px;
+    --grid-columns-size-mobile: 20px 1fr 70px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#list-details_root .page-h1 {
+    outline: none;
+}
+
+#list-details_root .list-wrapper {
+    display: flex;
+    flex-direction: row;
+}
+
+#list-details_root .item_wrapper.checked {
+    background: green;
+}
+
+#list-details-table-header {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: var(--grid-columns-size-mobile);
+    gap: 7px;
+    font-size: 1.1em;
+}
+
+#list-details-table-body {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 7px;
+}
+
+#list-details_root .list-item_wrapper {
+    width: 100%;
+    display: grid;
+    align-items: center;
+    grid-template-columns: var(--grid-columns-size-mobile);
+    gap: 7px;
+    position: relative;
+}
+
+#list-details_root .list-item_wrapper.checked {
+    background: green;
+}
+
+#list-details_root .toggle-check-item_button, #list-details_root .remove-row_button {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    border: none;
+    background: none;
+    font-size: var(--mobile-default-font-size);
+    line-height: var(--mobile-default-line-height);
+}
+
+#list-details_root .remove-row_button {
+    display: flex;
+    right: -30px;
+    color: red;
+}
+
+#list-details_root .toggle-check-item_button img, #list-details_root .remove-row_button img {
+    width: 100%;
+    height: 100%;
+}
+
+#list-details_root .item-name, #list-details_root .item-quantity {
+    padding: 5px;
+    font-size: var(--mobile-default-font-size);
+    line-height: var(--mobile-default-line-height);
+    outline: none;
+    background: #F2F2F280;
+    border: var(--default-border);
+    border-radius: 3px;
+}
+
+#list-details_root #add-row_button {
+    width: calc(100% - 54px);
+    margin-top: 10px;
+    padding: 3px;
+    align-self: center;
+    font-size: var(--mobile-default-font-size);
+    line-height: var(--mobile-default-line-height);
+    background: #F2F2F2;
+    outline: none;
+    border: var(--default-border);
+}
+
+#list-details_root #save-list_button {
+    margin-top: 30px;
+    align-self: center;
+}
+
+@media all and (min-width: 768px) {
+    #list-details-table-header {
+        grid-template-columns: var(--grid-columns-size-desktop);
+        gap: 10px;
+    }
+
+    #list-details_root .list-item_wrapper {
+        grid-template-columns: var(--grid-columns-size-desktop);
+        gap: 10px;
+    }
+
+    #list-details_root .remove-row_button, #list-details_root .toggle-check-item_button {
+        width: 25px;
+        height: 25px;
+        font-size: var(--desktop-default-font-size);
+        line-height: var(--desktop-default-line-height);
+    }
+
+    #list-details_root .item-name, #list-details_root .item-quantity {
+        font-size: var(--desktop-default-font-size);
+        line-height: var(--desktop-default-line-height);
+    }
+
+    #list-details_root #add-row_button {
+        width: calc(100% - 70px);
+        font-size: var(--desktop-default-font-size);
+        line-height: var(--desktop-default-line-height);
+    }
+}

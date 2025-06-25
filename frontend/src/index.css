@@ -1,0 +1,87 @@
+:root {
+  --desktop-default-font-size: 19px;
+  --mobile-default-font-size: 16px;
+  --desktop-default-line-height: 21px;
+  --mobile-default-line-height: 17px;
+  --default-border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  font-family: 'Lato', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: var(--mobile-default-font-size);
+  line-height: var(--mobile-default-line-height);
+  background-color: #F2F2F2;
+  background: linear-gradient(90deg,rgba(0, 0, 0, 0.3) 0%, rgba(255, 255, 255, 0.2) 50%, rgba(0, 0, 0, 0.3) 100%);
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+#root {
+  width: 100vw;
+  max-width: 767px;
+  margin: 30px 7%;
+  padding: 20px 7% 50px 7%;
+  border: 1px solid black;
+  border-radius: 30px;
+}
+
+h1, h2, h3, h4, h5, h6, p {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.default_button {
+  max-width: max-content;
+  padding: 5px 25px;
+  display: flex;
+  align-items: center;
+  flex: 1 1 0%;
+  font-size: 13px;
+  line-height: 13px;
+  font-weight: 600;
+  border: 1px solid rgba(0, 0, 0, 0.5);
+  border-radius: 30px;
+  color: #000000;
+  background-color: #F2F2F2;
+  text-align: center;
+}
+
+input {
+  min-width: 0;
+}
+
+@media all and (min-width: 768px) {
+  #root {
+    margin: 50px 7%;
+    padding: 20px 7% 50px 7%;
+  }
+
+  body {
+    font-size: var(--desktop-default-font-size);
+    line-height: var(--desktop-default-line-height);
+  }
+
+  .default_button {
+    padding: 8px 35px;
+    font-size: 16px;
+    line-height: 16px;
+  }
+}

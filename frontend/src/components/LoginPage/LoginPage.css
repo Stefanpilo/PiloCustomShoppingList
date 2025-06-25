@@ -1,0 +1,63 @@
+#loadingPage_root {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#login_form {
+    margin-top: 30px;
+    max-width: 250px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#login_form #password_input_wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+#login_form #togglePasswordVisibility_button {
+    position: absolute;
+    right: 5px;
+    width: 20px;
+    padding: 0;
+    background: none;
+    border: none;
+}
+
+#login_form .username_input, #login_form .password_input {
+    width: 100%;
+    padding: 5px;
+    font-size: var(--mobile-default-font-size);
+    line-height: var(--mobile-default-line-height);
+    outline: none;
+    background: #F2F2F280;
+    border: var(--default-border);
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+#login_form .password_input {
+    padding-right: 30px;
+}
+
+#login_form .submit_button {
+    margin-top: 20px;
+}
+
+#login_form .submit_button:disabled {
+    color: rgba(0, 0, 0, 0.6);
+    pointer-events: none;
+}
+
+@media all and (min-width: 768px) {
+    #login_form .username_input, #login_form .password_input {
+        font-size: var(--desktop-default-font-size);
+        line-height: var(--desktop-default-line-height);
+    }
+}

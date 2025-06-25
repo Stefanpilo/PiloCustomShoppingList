@@ -1,0 +1,108 @@
+#new-list_root {
+    --grid-columns-size-desktop: 1fr 82px 25px;
+    --grid-columns-size-mobile: 1fr 70px 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+#new-list-name_wrapper {
+    margin-top: 50px;
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    align-items: center;
+}
+
+#new-list-table-header {
+    margin-top: 50px;
+    display: grid;
+    grid-template-columns: var(--grid-columns-size-mobile);
+    gap: 7px;
+    font-size: 1.1em;
+}
+
+#new-list-table-body {
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+    row-gap: 7px;
+}
+
+#new-list_root .list-item_wrapper {
+    width: 100%;
+    display: grid;
+    align-items: center;
+    grid-template-columns: var(--grid-columns-size-mobile);
+    gap: 7px;
+    position: relative;
+}
+
+#new-list_root .remove-row_button {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    border: none;
+    background: none;
+}
+
+#new-list_root .remove-row_button img {
+    width: 100%;
+}
+
+#new-list_root #new-list-name_input, #new-list_root .item-name, #new-list_root .item-quantity {
+    padding: 5px;
+    font-size: var(--mobile-default-font-size);
+    line-height: var(--mobile-default-line-height);
+    outline: none;
+    background: #F2F2F280;
+    border: var(--default-border);
+    border-radius: 3px;
+}
+
+#new-list_root #add-row_button {
+    width: 100%;
+    margin-top: 10px;
+    padding: 3px;
+    align-self: flex-start;
+    background: #F2F2F2;
+    outline: none;
+    border: var(--default-border);
+    font-size: var(--mobile-default-font-size);
+    line-height: var(--mobile-default-line-height);
+}
+
+#new-list_root #save-list_button {
+    margin-top: 30px;
+    align-self: center;
+}
+
+
+@media all and (min-width: 768px) {
+    #new-list-table-header {
+        grid-template-columns: var(--grid-columns-size-desktop);
+        gap: 10px;
+    }
+
+    #new-list_root .list-item_wrapper {
+        grid-template-columns: var(--grid-columns-size-desktop);
+        gap: 10px;
+    }
+
+    #new-list_root .remove-row_button {
+        width: 25px;
+        height: 25px;
+    }
+
+    #new-list_root #new-list-name_input, #new-list_root .item-name, #new-list_root .item-quantity {
+        font-size: var(--desktop-default-font-size);
+        line-height: var(--desktop-default-font-size);
+    }
+
+    #new-list_root #add-row_button {
+        width: calc(100% - 35px);
+        font-size: var(--desktop-default-font-size);
+        line-height: var(--desktop-default-line-height);
+    }
+}

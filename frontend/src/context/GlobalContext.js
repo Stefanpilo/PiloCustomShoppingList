@@ -12,7 +12,8 @@ export function GlobalProvider({ children }) {
         LOGIN_PAGE: '/login'
     };
     
-    const backendApiEndpoint = 'https://pilotest.ct.ws/backend/requestHandler.php';
+    const rootDirectory = 'https://pilotest.ct.ws';
+    const backendApiEndpoint = rootDirectory + '/backend/requestHandler.php';
     const localStorageDbName = 'piloCustomShoppingList';
     const localStorageUserID = localStorageDbName + 'UserID';
     const localStorageTempListID = localStorageDbName + 'TempListID';

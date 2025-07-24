@@ -61,11 +61,11 @@ function HomePage() {
                             Object.values(onlineDbData).length > 0 ? (
                                 Object.values(onlineDbData).map( (element, index) => (
                                     <div className='single-list_wrapper' key={index}>
-                                        <Link to={`${ROUTES.LIST_DETAILS}/${element.list_name}`} className='list-link' onClick={() => { setCurrentListID(element.list_id); }}>
+                                        <Link to={`${ROUTES.LIST_DETAILS}/${encodeURIComponent(element.list_name)}`} className='list-link' onClick={() => { setCurrentListID(element.list_id); }}>
                                             {element.list_name}
                                         </Link>
                                         <button>Esporta</button>
-                                        <button>Elimina</button>
+                                        <button className={element.list_id}>Elimina</button>
                                     </div>
                                 ))
                             )

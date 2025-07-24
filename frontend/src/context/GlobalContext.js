@@ -13,7 +13,7 @@ export function GlobalProvider({ children }) {
     };
     
     const rootDirectory = 'https://pilotest.ct.ws';
-    const backendApiEndpoint = rootDirectory + '/backend/requestHandler.php';
+    const backendApiEndpoint = rootDirectory + '/backend/APIEndpoint.php';
     const localStorageDbName = 'piloCustomShoppingList';
     const localStorageUserID = localStorageDbName + 'UserID';
     const localStorageTempListID = localStorageDbName + 'TempListID';
@@ -42,7 +42,7 @@ export function GlobalProvider({ children }) {
         async function loadStorageData() {
             const currentListIDData = await Preferences.get({ key: localStorageTempListID });
 
-            if (currentListIDData.value)
+            if (currentListIDData?.value)
                 setCurrentListID(currentListIDData.value);
         }
 

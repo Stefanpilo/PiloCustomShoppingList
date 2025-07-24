@@ -13,14 +13,8 @@ import './Header.css'
 function Header({ navBar }) {
     const navigate = useNavigate();
     const location = useLocation();
-    const { ROUTES, setCurrentListID } = useGlobalContext();
+    const { ROUTES } = useGlobalContext();
     const { isUserLoggedIn, username } = useAuth();
-
-
-    useEffect(() => {
-        if (!location.pathname.startsWith(ROUTES.LIST_DETAILS))
-            setCurrentListID(null);
-    }, [location.pathname, ROUTES, setCurrentListID]);
 
     return (
         <div id="header_wrapper">

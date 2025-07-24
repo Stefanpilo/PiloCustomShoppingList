@@ -85,6 +85,9 @@ function OnlineListHandler() {
                 setListLastModifiedDate(lastModified);
             })();
         }
+        else {
+            navigate('/');
+        }
     }, [currentListID, getListItemsByListID, getListLastModifiedDate]);
 
 
@@ -192,12 +195,12 @@ function OnlineListHandler() {
         setIsListSaving(true);
         let currentListLastModifiedDate = await getListLastModifiedDate();
 
+        //Controllo errori
         if (currentListLastModifiedDate !== listLastModifiedDate) {
             setTextOnlyPopup({ message: 'Non si ha la versione aggiornata della lista.\nPremere ok per ricaricare.', shouldRefreshPage: true });
             return;
         }
 
-        
         if (currentDbData.items.some( (item) => item.item_name === '')) {
             setTextOnlyPopup({ message: 'È presente almeno un elemento con nome vuoto.' });
             setIsListSaving(false);
@@ -209,15 +212,17 @@ function OnlineListHandler() {
             setIsListSaving(false);
             return;
         }
+        //Fine controllo errori
         
+
         if (newListName !== listName)
            updateListName(newListName);
 
         let response = await updateListItems(updates);
 
         if (response) {
-            console.log('salvato. risposta:');
-            console.log(response);
+            //console.log('salvato. risposta:');
+            //console.log(response);
             setListLastModifiedDate( await getListLastModifiedDate() );
         }
         else {

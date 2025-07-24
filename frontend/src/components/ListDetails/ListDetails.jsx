@@ -224,6 +224,7 @@ function OnlineListHandler() {
             //console.log('salvato. risposta:');
             //console.log(response);
             setListLastModifiedDate( await getListLastModifiedDate() );
+            setTextOnlyPopup({ message: 'Lista salvata con successo' });
         }
         else {
             console.log('nessun aggiornamento da fare');

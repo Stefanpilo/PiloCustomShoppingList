@@ -119,14 +119,15 @@
         $response = [];
         $pdo = getDbConnection();
 
-        $query =   'INSERT INTO shopping_list_items (list_id, item_name, item_quantity, item_checked)
-                    VALUES (?, ?, ?, ?)';
+        $query =   'INSERT INTO shopping_list_items (list_id, item_name, item_quantity, item_checked, item_posInList)
+                    VALUES (?, ?, ?, ?, ?)';
         $stmt = $pdo->prepare($query);
         $stmt->execute([
             $list_id,
             $item['item_name'],
             $item['item_quantity'],
-            $item['item_checked']
+            $item['item_checked'],
+            $item['item_posInList']
         ]);
 
         $response['successful'] = $stmt->rowCount() > 0;
@@ -174,7 +175,7 @@
         $pdo = getDbConnection();
 
         $query =   'UPDATE shopping_list_items
-                    SET item_name = ?, item_quantity = ?, item_checked = ?
+                    SET item_name = ?, item_quantity = ?, item_checked = ?, item_posInList = ?
                     WHERE item_id = ? AND list_id = ?';
                     
         $stmt = $pdo->prepare($query);
@@ -182,6 +183,7 @@
             $item['item_name'],
             $item['item_quantity'],
             $item['item_checked'],
+            $item['item_posInList'],
             $item['item_id'],
             $list_id
         ]);

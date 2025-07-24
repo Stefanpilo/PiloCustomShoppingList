@@ -21,17 +21,43 @@ function NewList() {
     const { insertNewListWithItems } = SaveOnlineDbHook();
 
     const [listName, setListName] = useState('');
-    const [itemsList, setItemsList] = useState([{item_name: '', item_quantity: 1, item_checked: false}]);
+    const [itemsList, setItemsList] = useState([{ item_name: '', item_quantity: 1, item_checked: false, item_posInList: 0 }]);
     const [isListSaving, setIsListSaving] = useState(false);
 
     const addRow = () => {
-        setItemsList([...itemsList, {item_name: '', item_quantity: 1, item_checked: false}]);
+        setItemsList([...itemsList, { item_name: '', item_quantity: 1, item_checked: false, item_posInList: itemsList.length }]);
     }
 
     const removeRow = (index) => {
         const updatedList = [...itemsList];
         updatedList.splice(index, 1);
-        setItemsList(updatedList);
+        const sortedUpdatedList = reCalculateListItemsOrder(updatedList);
+        setItemsList(sortedUpdatedList);
+    }
+
+    const moveRow = (direction, index) => {
+        let indexToSwap = index;
+        if (direction === 'UP')
+            indexToSwap = index -1;
+        else if (direction === 'DOWN')
+            indexToSwap = index +1;
+
+        setItemsList(itemsList => {
+            const newItemsList = [...itemsList];
+            [newItemsList[index], newItemsList[indexToSwap]] = [newItemsList[indexToSwap], newItemsList[index]];
+            const sortedNewItemsList = reCalculateListItemsOrder(newItemsList);
+            return sortedNewItemsList;
+        });
+    }
+
+    const reCalculateListItemsOrder = (updatedList) => {
+        let i = 0;
+        updatedList.forEach(item => {
+            item.item_posInList = i;
+            i++;
+        });
+
+        return updatedList;
     }
 
     const handleListElementChange = (index, field, value) => {
@@ -107,12 +133,14 @@ function NewList() {
                 <h1 className='page-h1'>
                     Nuova lista
                 </h1>
+                {/* TODEL */} <button onClick={() => console.log(itemsList)}>click</button> 
                 <div id="new-list-name_wrapper">
                     <label htmlFor="new-list-name_input" style={{whiteSpace: "nowrap"}}>Nome Lista</label>
                     <input id="new-list-name_input" type="text" placeholder="Inserisci nome" value={listName} onChange={ (e) => setListName(e.target.value)} style={{width: "100%"}}/>
                 </div>
             
                 <div id="new-list-table-header">
+                    <span />
                     <span>Nome elemento</span>
                     <span>Quantità</span>
                     <span />
@@ -121,6 +149,10 @@ function NewList() {
                 <div id="new-list-table-body">
                     {itemsList.map( (element, index) => (
                         <div key={index} className="list-item_wrapper">
+                            <div className="move-row-buttons_wrapper">
+                                <button className="move-row_button move-row-up" disabled={index === 0} onClick={(e) => moveRow('UP', index)}>U</button>
+                                <button className="move-row_button move-row-down" disabled={index === itemsList.length -1} onClick={(e) => moveRow('DOWN', index)}>D</button>
+                            </div>
                             <input name="item-name" className="item-name" type="text" placeholder="Nome elemento" value={element.item_name} onChange={(e) => handleListElementChange(index, 'item_name', e.target.value)}></input>
                             <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={element.item_quantity} onChange={(e) => handleListElementChange(index, 'item_quantity', e.target.value)}></input>
                             <button className='remove-row_button' onClick={() => removeRow(index)}>

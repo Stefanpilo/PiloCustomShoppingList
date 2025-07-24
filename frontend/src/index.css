@@ -48,6 +48,12 @@ button {
   cursor: pointer;
 }
 
+button[disabled] {
+  cursor: default;
+  pointer-events: none;
+  opacity: 0.3;
+}
+
 .default_button {
   max-width: max-content;
   padding: 5px 25px;

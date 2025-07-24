@@ -1,6 +1,6 @@
 #new-list_root {
-    --grid-columns-size-desktop: 1fr 82px 25px;
-    --grid-columns-size-mobile: 1fr 70px 20px;
+    --grid-columns-size-desktop: 12px 1fr 82px 25px;
+    --grid-columns-size-mobile: 12px 1fr 70px 20px;
     display: flex;
     flex-direction: column;
 }
@@ -37,9 +37,33 @@
     position: relative;
 }
 
+#new-list_root .list-item_wrapper .move-row-buttons_wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2px
+}
+
+#new-list_root .list-item_wrapper .move-row-buttons_wrapper .move-row_button {
+    padding: 0;
+    background-color: transparent;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: transparent;
+    outline: none;
+    border: none;
+}
+
+#new-list_root .list-item_wrapper .move-row-buttons_wrapper .move-row-up {
+    background-image: url('../../images/arrow-head-up.svg');
+}
+
+#new-list_root .list-item_wrapper .move-row-buttons_wrapper .move-row-down {
+    background-image: url('../../images/arrow-head-down.svg');
+}
+
 #new-list_root .remove-row_button {
-    width: 20px;
-    height: 20px;
     padding: 0;
     margin: 0;
     display: flex;

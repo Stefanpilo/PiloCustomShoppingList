@@ -35,19 +35,13 @@ function SaveOnlineDbHook() {
             listName: dataToSave
         };
 
-        console.log('entrato');
-        console.log(dataToSave);
-        console.log(currentListID);
-
-        fetch(backendApiEndpoint, {
+        return fetch(backendApiEndpoint, {
             method: 'POST',
             headers: { 'Content-type': 'application/json'},
             body: JSON.stringify(dataToSend)
         })
         .then( response => response.ok ? response.json().catch(error => {throw new Error('json parse error: ' + error)} ) : Promise.reject('response is not ok') )
-        .then( data => {
-            console.log(data.result);
-        })
+        .then( data => data)
         .catch( error => { console.error('fetch error (update list name):'); console.error(error); } );
     }, [requestTypes, userID, currentListID, backendApiEndpoint]);
 

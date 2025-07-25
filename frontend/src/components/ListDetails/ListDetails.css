@@ -1,6 +1,6 @@
 #list-details_root {
-    --grid-columns-size-desktop: 25px 1fr 82px 25px;
-    --grid-columns-size-mobile: 20px 1fr 70px 20px;
+    --grid-columns-size-desktop: 25px 12px 1fr 82px 25px;
+    --grid-columns-size-mobile: 20px 10px 1fr 70px 20px;
     display: flex;
     flex-direction: column;
 }
@@ -42,6 +42,33 @@
     position: relative;
 }
 
+#list-details_root .list-item_wrapper .move-row-buttons_wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 2px;
+}
+
+#list-details_root .list-item_wrapper .move-row-buttons_wrapper .move-row_button {
+    padding: 0;
+    background-color: transparent;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    color: transparent;
+    outline: none;
+    border: none;
+}
+
+#list-details_root .list-item_wrapper .move-row-buttons_wrapper .move-row-up {
+    background-image: url('../../images/arrow-head-up.svg');
+}
+
+#list-details_root .list-item_wrapper .move-row-buttons_wrapper .move-row-down {
+    background-image: url('../../images/arrow-head-down.svg');
+}
+
 #list-details_root .list-item_wrapper.checked {
     background: green;
 }
@@ -79,10 +106,11 @@
 }
 
 #list-details_root #add-row_button {
-    width: calc(100% - 54px);
+    width: calc(100% - 20px - 7px - 10px - 7px - 7px - 20px);
+    margin-left: calc(20px + 7px + 10px + 7px);
     margin-top: 10px;
     padding: 3px;
-    align-self: center;
+    align-self: flex-start;
     font-size: var(--mobile-default-font-size);
     line-height: var(--mobile-default-line-height);
     background: #F2F2F2;
@@ -119,7 +147,8 @@
     }
 
     #list-details_root #add-row_button {
-        width: calc(100% - 70px);
+        width: calc(100% - 25px - 10px - 10px - 12px - 10px - 25px);
+        margin-left: calc(25px + 10px + 10px + 12px);
         font-size: var(--desktop-default-font-size);
         line-height: var(--desktop-default-line-height);
     }

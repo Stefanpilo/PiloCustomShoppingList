@@ -33,7 +33,7 @@ function OnlineListHandler() {
     const navigate = useNavigate();
 
     const { listName } = useParams();
-    const { currentListID } = useGlobalContext();
+    const { currentListID, ROUTES } = useGlobalContext();
     const { setTextOnlyPopup } = usePopup();
     const { getListItemsByListID, getListLastModifiedDate } = ReadOnlineDbHook();
     const { updateListName, updateListItems } = SaveOnlineDbHook();
@@ -88,7 +88,7 @@ function OnlineListHandler() {
         else {
             navigate('/');
         }
-    }, [currentListID, getListItemsByListID, getListLastModifiedDate]);
+    }, [currentListID, getListItemsByListID, getListLastModifiedDate, navigate]);
 
 
     function addRow() {
@@ -97,6 +97,7 @@ function OnlineListHandler() {
             item_name: '',
             item_quantity: 1,
             item_checked: false,
+            item_posInList: currentDbData.items.length,
             list_id: currentListID
         };
 
@@ -112,30 +113,140 @@ function OnlineListHandler() {
     }
 
     function removeRow(index) {
+        const itemToRemove = currentDbData.items.find(el => el.id === index);
+        const oldItemsList = [ ...currentDbData.items ];
+        const newItemsList = reCalculateListItemsOrder( currentDbData.items.filter( el => el.id !== index) );
+        console.log(newItemsList);
+
         setCurrentDbData((prev) => ({
             ...prev,
-            items: prev.items.filter( (el) => el.id !== index )
+            items: newItemsList
         }));
 
         setUpdates((prev) => {
-            const isAdded = prev.added.find( (el) => el.id === index );
-            if (isAdded) {
-                //console.log('remove is added');
-                return {
-                    ...prev,
-                    added: prev.added.filter( (el) => el.id !== index ),
+            let newAdded = [...prev.added];
+            let newModified = [...prev.modified];
+            let newRemoved = [...prev.removed];
+
+            let i = 0;
+            oldItemsList.forEach(item => {
+                if (i === itemToRemove.item_posInList) {
+                    const isAddedIndex = prev.added.findIndex(el => el.id === itemToRemove.id);
+                    if (isAddedIndex !== -1) {
+                        newAdded = prev.added.filter(el => el.id !== itemToRemove.id);
+                    }
+                    else {
+                        newModified = prev.modified.filter(el => el.id !== itemToRemove.id);
+                        newRemoved.push({
+                            ...item
+                        });
+                    }
+                }
+                if ( i > itemToRemove.item_posInList) {
+                    const isAddedIndex = prev.added.findIndex( el => el.id === item.id );
+                    if (isAddedIndex !== -1) {
+                        newAdded[isAddedIndex] = {
+                            ...newAdded[isAddedIndex],
+                            item_posInList: i - 1
+                        };
+                    }
+                    else {
+                        const isModifiedIndex = prev.modified.findIndex( el => el.id === item.id );
+                        if (isModifiedIndex !== -1) {
+                            newModified[isModifiedIndex] = {
+                                ...newModified[isModifiedIndex],
+                                item_posInList: i - 1
+                            };
+                        }
+                        else {
+                            newModified.push({
+                                ...item,
+                                item_posInList: i
+                            });
+                        }
+                    }
+                }
+                i++;
+            });
+
+            return {
+                ...prev,
+                added: newAdded,
+                modified: newModified,
+                removed: newRemoved
+            }
+        });
+    }
+
+    function moveRow(direction, index) {
+        let indexToSwap = index;
+        const elToSwap1 = { ...currentDbData.items[index] };
+
+        if (direction === 'UP')
+            indexToSwap -= 1;
+        else if (direction === 'DOWN')
+            indexToSwap += 1;
+
+        const elToSwap2 = { ...currentDbData.items[indexToSwap] };
+
+        setCurrentDbData(prev => {
+            const newItemsList = [...prev.items];
+
+            [newItemsList[index], newItemsList[indexToSwap]] = [newItemsList[indexToSwap], newItemsList[index]];
+
+            return {
+                ...prev,
+                items: reCalculateListItemsOrder(newItemsList)
+            }
+        });
+
+        setUpdates(prev => {
+            const newAdded = [...prev.added];
+            const newModified = [...prev.modified];
+
+            function checkElementToUpdate(elToSwap, posToSwap) {
+                const isAddedIndex = prev.added.findIndex(el => el.id === elToSwap.id);
+                if (isAddedIndex !== -1)
+                    newAdded[isAddedIndex] = {
+                        ...newAdded[isAddedIndex],
+                        item_posInList: posToSwap
+                    };
+                else {
+                    const isModifiedIndex = prev.modified.findIndex(el => el.id === elToSwap.id);
+                    if (isModifiedIndex !== -1) {
+                        newModified[isModifiedIndex] = {
+                            ...newModified[isModifiedIndex],
+                            item_posInList: posToSwap
+                        }   
+                    }
+                    else {
+                        newModified.push( {
+                            ...elToSwap,
+                            item_posInList: posToSwap
+                        })
+                    }
                 }
             }
-            else {
-                //console.log('remove is modified/removed');
-                const alreadyRemoved = prev.removed.some( (el) => el.id === index);
-                return {
-                    ...prev,
-                    modified: prev.modified.filter( (el) => el.id !== index),
-                    removed: alreadyRemoved ? prev.removed : [ ...prev.removed, currentDbData.items.find( (el) => el.id === index) ]
-                }
+
+            checkElementToUpdate(elToSwap1, elToSwap2.item_posInList);
+            checkElementToUpdate(elToSwap2, elToSwap1.item_posInList);
+            
+            return {
+                ...prev,
+                added: newAdded,
+                modified: newModified
             }
-        })
+        });
+    }
+
+    function reCalculateListItemsOrder(itemsListToSort) {
+        let i = 0;
+        itemsListToSort.forEach(item => {
+            item.item_posInList = i;
+            i++;
+        });
+
+        return itemsListToSort;
     }
 
     function updateRowValue(index, newValue, whatToUpdate) {
@@ -201,7 +312,7 @@ function OnlineListHandler() {
             return;
         }
 
-        if (currentDbData.items.some( (item) => item.item_name === '')) {
+        if (currentDbData.items.some((item) => item.item_name === '')) {
             setTextOnlyPopup({ message: 'È presente almeno un elemento con nome vuoto.' });
             setIsListSaving(false);
             return;
@@ -215,16 +326,19 @@ function OnlineListHandler() {
         //Fine controllo errori
         
 
+        let listNameUpdatedResponse = false;
         if (newListName !== listName)
-           updateListName(newListName);
+            listNameUpdatedResponse = await updateListName(newListName);
+
+        currentDbData.items.map((item) => item.item_quantity === '' ? item.item_quantity = 1 : item.item_quantity);
 
         let response = await updateListItems(updates);
 
-        if (response) {
+        if (response || listNameUpdatedResponse) {
             //console.log('salvato. risposta:');
             //console.log(response);
             setListLastModifiedDate( await getListLastModifiedDate() );
-            setTextOnlyPopup({ message: 'Lista salvata con successo' });
+            setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + newListName});
         }
         else {
             console.log('nessun aggiornamento da fare');
@@ -252,14 +366,13 @@ function OnlineListHandler() {
                     <h1 className="page-h1" contentEditable suppressContentEditableWarning={true} onInput={(e) => setNewListName(e.target.textContent)}>
                         {listName}
                     </h1>
+                    {/* TO DEL <button onClick={() => {console.log(currentDbData); console.log(updates);}}>show list</button> */}
                     {!pageLoaded ?
                         <div style={{marginTop: 50}}>Caricamento...</div>
                     : (<>
                         <div id="list-details-table-header">
-                            <span />
-                            <span>Nome elemento</span>
+                            <span style={{gridColumn: 3}}>Nome elemento</span>
                             <span>Quantità</span>
-                            <span />
                         </div>
                     <div id="list-details-table-body">
                         {currentDbData && currentDbData.items && currentDbData.items.map((item, index) => (
@@ -268,8 +381,12 @@ function OnlineListHandler() {
                                     <button className="toggle-check-item_button" onClick={() => updateRowValue(item.id, Number(!item.item_checked), 'check')}>
                                         {!item.item_checked ? <img src={checkboxUnchecked} alt="unckeck"/> : <img src={checkboxChecked} alt="check" />}
                                     </button>
+                                    <div className="move-row-buttons_wrapper">
+                                        <button className="move-row_button move-row-up" disabled={index === 0} onClick={(e) => moveRow('UP', index)}>U</button>
+                                        <button className="move-row_button move-row-down" disabled={index === currentDbData.items.length -1} onClick={(e) => moveRow('DOWN', index)}>D</button>
+                                    </div>
                                     <input name="item-name" className="item-name" type="text" placeholder="Nome elemento" value={item.item_name || ''} onChange={(e) => updateRowValue(item.id, e.target.value, 'name')} />
-                                    <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={item.item_quantity || 1} onChange={(e) => updateRowValue(item.id, e.target.value, 'quantity')} />
+                                    <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={item.item_quantity || 1} onChange={(e) => updateRowValue(item.id, Number(e.target.value) === 0 ? '' : Number(e.target.value), 'quantity')} />
                                     <button className="remove-row_button" onClick={() => removeRow(item.id)}>
                                         <img src={binIcon} alt="bin" />
                                     </button>
@@ -290,6 +407,7 @@ function OnlineListHandler() {
 function OfflineListHandler() {
     const { setTextOnlyPopup } = usePopup();
     const { listName } = useParams();
+    const { ROUTES } = useGlobalContext();
     const { localStorageDb, setLocalStorageDb } = LocalStorageHook();
     
     const [newListName, setNewListName] = useState(listName);
@@ -302,18 +420,42 @@ function OfflineListHandler() {
 
     
     const addRow = () => {
-        setItemsList([...itemsList, {item_name: '', item_quantity: 1, item_checked: false}]);
+        setItemsList([...itemsList, {item_name: '', item_quantity: 1, item_checked: false, item_posInList : itemsList.length}]);
     }
     
     const removeRow = (index) => {
         const updatedList = [...itemsList];
         updatedList.splice(index, 1);
-        setItemsList(updatedList);
+        setItemsList(reCalculateListItemsOrder(updatedList));
     }
+
+    const moveRow = (direction, index) => {
+        let indexToSwap = index;
+        if (direction === 'UP')
+            indexToSwap -= 1;
+        else if (direction === 'DOWN')
+            indexToSwap += 1;
+        
+        setItemsList(itemsList => {
+            const newItemsList = [...itemsList];
+            [newItemsList[index], newItemsList[indexToSwap]] = [newItemsList[indexToSwap], newItemsList[index]];
+            return reCalculateListItemsOrder(newItemsList);
+        })
+    };
+
+    function reCalculateListItemsOrder(itemsListToSort) {
+        let i = 0;
+        itemsListToSort.forEach(item => {
+            item.item_posInList = i;
+            i++;
+        });
+
+        return itemsListToSort;
+    };
     
     function handleCheckClick(index) {
         const updateItemList = itemsList.map( (element, i) => 
-            i === index ? { ...element, itemChecked: !element.itemChecked } : element
+            i === index ? { ...element, item_checked: !element.item_checked } : element
         );
         setItemsList(updateItemList);
     }
@@ -325,7 +467,9 @@ function OfflineListHandler() {
     }
 
     function saveList() {
-        const validItemsList = itemsList.filter((item) => item.item_name !== '');
+        const itemsListToSave = itemsList.filter((item) => item.item_name !== '');
+        itemsListToSave.map((item) => item.item_quantity === '' ? item.item_quantity = 1 : item.item_quantity);
+
 
         if (!newListName) {
             setTextOnlyPopup({message: 'Inserire il nome della lista'});
@@ -340,19 +484,19 @@ function OfflineListHandler() {
             const { [listName]: removed, ...rest } = localStorageDb;
             const newDb = {
                 ...rest,
-                [newListName]: validItemsList
+                [newListName]: itemsListToSave
             }
             setLocalStorageDb(newDb);
         }
         else {
             const newDb = {
                 ...localStorageDb,
-                [listName]: validItemsList
+                [listName]: itemsListToSave
             }
             setLocalStorageDb(newDb);
         }
 
-        setTextOnlyPopup({message: 'Lista salvata con successo'});
+        setTextOnlyPopup({message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + newListName});
     }
 
     return (
@@ -369,19 +513,21 @@ function OfflineListHandler() {
                     {listName}
                 </h1>
                 <div id="list-details-table-header">
-                    <span />
-                    <span>Nome elemento</span>
+                    <span style={{gridColumn: 3}}>Nome elemento</span>
                     <span>Quantità</span>
-                    <span />
                 </div>
                 <div id="list-details-table-body">
                     {itemsList.map( (element, index) => (
-                        <div key={index} className={"list-item_wrapper" + (element.itemChecked ? ' checked' : '')}>
+                        <div key={index} className={"list-item_wrapper" + (element.item_checked ? ' checked' : '')}>
                             <button className="toggle-check-item_button" onClick={() => handleCheckClick(index)}>
-                                {!element.itemChecked ? <img src={checkboxUnchecked} alt="unckecked" /> : <img src={checkboxChecked} alt="checked" />}
+                                {!element.item_checked ? <img src={checkboxUnchecked} alt="unckecked" /> : <img src={checkboxChecked} alt="checked" />}
                             </button>
+                            <div className="move-row-buttons_wrapper">
+                                <button className="move-row_button move-row-up" disabled={index === 0} onClick={(e) => moveRow('UP', index)}>U</button>
+                                <button className="move-row_button move-row-down" disabled={index === itemsList.length -1} onClick={(e) => moveRow('DOWN', index)}>D</button>
+                            </div>
                             <input name="item-name" className="item-name" type="text" placeholder="Nome elemento" value={element.item_name || ''} onChange={(e) => handleListItemChange(index, 'item_name', e.target.value)}></input>
-                            <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={element.item_quantity || 1} onChange={(e) => handleListItemChange(index, 'item_quantity', e.target.value)}></input>
+                            <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={element.item_quantity} onChange={(e) => handleListItemChange(index, 'item_quantity', Number(e.target.value) === 0 ? '' : Number(e.target.value))}></input>
                             <button className="remove-row_button" onClick={() => removeRow(index)}>
                                 <img src={binIcon} alt="bin" />
                             </button>

@@ -38,9 +38,9 @@ function NewList() {
     const moveRow = (direction, index) => {
         let indexToSwap = index;
         if (direction === 'UP')
-            indexToSwap = index -1;
+            indexToSwap -= 1;
         else if (direction === 'DOWN')
-            indexToSwap = index +1;
+            indexToSwap += 1;
 
         setItemsList(itemsList => {
             const newItemsList = [...itemsList];
@@ -50,14 +50,14 @@ function NewList() {
         });
     }
 
-    const reCalculateListItemsOrder = (updatedList) => {
+    const reCalculateListItemsOrder = (itemsListToSort) => {
         let i = 0;
-        updatedList.forEach(item => {
+        itemsListToSort.forEach(item => {
             item.item_posInList = i;
             i++;
         });
 
-        return updatedList;
+        return itemsListToSort;
     }
 
     const handleListElementChange = (index, field, value) => {
@@ -82,6 +82,12 @@ function NewList() {
                 return;
             }
 
+            if (itemsList.some( (item) => item.item_quantity === '')) {
+                setTextOnlyPopup({ message: 'È presente almeno un elemento con quantità vuota.'});
+                setIsListSaving(false);
+                return;
+            }
+
             /* const filteredList = listItems.filter((element) => element.item_name !== '');
             setListItems(filteredList);
 
@@ -101,6 +107,8 @@ function NewList() {
             setIsListSaving(false);
             return;
         }
+
+
 
         if (isUserLoggedIn) {
             const dataToSave = {
@@ -133,17 +141,15 @@ function NewList() {
                 <h1 className='page-h1'>
                     Nuova lista
                 </h1>
-                {/* TODEL */} <button onClick={() => console.log(itemsList)}>click</button> 
+                {/* TODEL <button onClick={() => console.log(itemsList)}>show itemsList</button> */} 
                 <div id="new-list-name_wrapper">
                     <label htmlFor="new-list-name_input" style={{whiteSpace: "nowrap"}}>Nome Lista</label>
                     <input id="new-list-name_input" type="text" placeholder="Inserisci nome" value={listName} onChange={ (e) => setListName(e.target.value)} style={{width: "100%"}}/>
                 </div>
             
                 <div id="new-list-table-header">
-                    <span />
-                    <span>Nome elemento</span>
+                    <span style={{gridColumn: 2}}>Nome elemento</span>
                     <span>Quantità</span>
-                    <span />
                 </div>
                 
                 <div id="new-list-table-body">
@@ -154,7 +160,7 @@ function NewList() {
                                 <button className="move-row_button move-row-down" disabled={index === itemsList.length -1} onClick={(e) => moveRow('DOWN', index)}>D</button>
                             </div>
                             <input name="item-name" className="item-name" type="text" placeholder="Nome elemento" value={element.item_name} onChange={(e) => handleListElementChange(index, 'item_name', e.target.value)}></input>
-                            <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={element.item_quantity} onChange={(e) => handleListElementChange(index, 'item_quantity', e.target.value)}></input>
+                            <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={element.item_quantity} onChange={(e) => handleListElementChange(index, 'item_quantity', Number(e.target.value) === 0 ? '' : Number(e.target.value))}></input>
                             <button className='remove-row_button' onClick={() => removeRow(index)}>
                                 <img src={binIcon} alt="bin" />
                             </button>

@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 
 import { useGlobalContext } from "../../context/GlobalContext";
@@ -11,7 +10,6 @@ import './Header.css'
 
 
 function Header({ navBar }) {
-    const navigate = useNavigate();
     const location = useLocation();
     const { ROUTES } = useGlobalContext();
     const { isUserLoggedIn, username } = useAuth();
@@ -19,17 +17,17 @@ function Header({ navBar }) {
     return (
         <div id="header_wrapper">
             <div id="nav-bar">
-                {navBar.backBtn && (
+                {navBar.backBtn && /*(
                     window.history.length > 1 ? (
                         <button className="link_button default_button" onClick={() => navigate(-1)}>
                             Indietro
                         </button>
                     )
-                    : (
-                        <button className="link_button default_button" onClick={() => navigate(ROUTES.HOME)}>
+                    : */(
+                        <Link to={ROUTES.HOME} className="link_button default_button">
                             Home
-                        </button>
-                    )
+                        </Link>
+                    
                 )}
                 {navBar.homeBtn && (
                     <Link to={ROUTES.HOME} className="link_button default_button">

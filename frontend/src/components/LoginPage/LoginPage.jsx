@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { usePopup } from '../../popups/PopupContext.jsx';
 import { useGlobalContext } from '../../context/GlobalContext.js';
 import { useAuth } from '../../context/AuthContext.js';
-import { usePopup } from '../../popups/PopupContext.jsx';
 
 import Header from '../Header/Header.jsx';
 
@@ -31,23 +31,22 @@ function LoginPage() {
         if (operationType === 'login') {
             const response = await attemptLoginUser(username, password);
             
-            if (response.successful)
+            if (response?.successful)
                 setTextOnlyPopup({ message: response.message, destinationLink: ROUTES.HOME });
             else
-                setTextOnlyPopup({ message: response.message});
+                setTextOnlyPopup({ isErrorMessage: true, message: response.message });
         }
         else {
             const registerResponse = await registerUser(username, password);
             if (registerResponse.successful) {
                 const loginResponse = await attemptLoginUser(username, password);
-                if (loginResponse.successful) {
+                if (loginResponse?.successful)
                     setTextOnlyPopup({ message: loginResponse.message, destinationLink: ROUTES.HOME });
-                }
                 else
-                    setTextOnlyPopup({ message: loginResponse.message} );
+                    setTextOnlyPopup({ isErrorMessage: true, message: loginResponse.message });
             }
             else
-                setTextOnlyPopup({ message: registerResponse.message} );
+                setTextOnlyPopup({ isErrorMessage: true, message: registerResponse.message });
         }
 
         setAttemptingLogin(false);

@@ -6,7 +6,7 @@ import { useGlobalContext } from "./GlobalContext";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const { localStorageUserID, backendApiEndpoint, localStorageAuthToken, requestTypes } = useGlobalContext()
+    const { localStorageUserID, backendApiEndpoint, localStorageAuthToken, requestTypes } = useGlobalContext();
     const [isUserLoggedIn, setIsUserLoggedIn] = useState();
     const [username, setUsername] = useState();
     const [userID, setUserID] = useState(null);
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
         })
         .then(response => response.ok ? response.json().catch(error => {throw new Error('json parse error ' + error)} ) : Promise.reject('response not ok'))
         .then(data => data.result)
-        .catch(error => {console.error('fetch error (register user)'); console.error(error); return 0;})
+        .catch(error => {console.error('fetch error (register user)'); console.error(error); return error;})
     }, [requestTypes, backendApiEndpoint]);
 
     const attemptLoginUser = useCallback( async (username, password) => {
@@ -81,7 +81,7 @@ export function AuthProvider({ children }) {
 
             return data.result;
         })
-        .catch(error => {console.error('fetch error (attempt login)'); console.error(error); return 0;} );
+        .catch(error => error );
     }, [requestTypes, backendApiEndpoint]);
 
     const checkTokenValidity = useCallback( async (userID, loginToken) => {
@@ -116,8 +116,9 @@ export function AuthProvider({ children }) {
             password: urlParams.get('password') || null
         }
 
-        if (loginParams && loginParams.username)
+        if (loginParams && loginParams.username) {
             attemptLoginUser(loginParams.username , loginParams.password);
+        }
         else if (userID && authToken)
             checkTokenValidity(userID, authToken);
         else

@@ -1,8 +1,9 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { PopupProvider } from './popups/PopupProvider/PopupProvider';
 
+import { PopupProvider } from './popups/PopupProvider/PopupProvider';
 import { GlobalProvider, useGlobalContext } from './context/GlobalContext';
 import { AuthProvider } from './context/AuthContext';
+
 import LoginPage from './components/LoginPage/LoginPage';
 import HomePage from './components/HomePage/HomePage';
 import NewList from './components/NewList/NewList';
@@ -28,8 +29,6 @@ function App() {
 function AppContent() {
   const { ROUTES } = useGlobalContext();
   
-
-
   return (
     <Routes>
       <Route path={ROUTES.HOME} element={<HomePage />} />

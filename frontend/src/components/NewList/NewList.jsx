@@ -71,19 +71,19 @@ function NewList() {
 
         if (listName) {
             if (itemsList.length === 0) {
-                setTextOnlyPopup({ message: 'Inserire almeno un elemento' });
+                setTextOnlyPopup({ isErrorMessage: true, message: 'Inserire almeno un elemento' });
                 setIsListSaving(false);
                 return;
             }
 
             if (itemsList.some( (item) => item.item_name === '')) {
-                setTextOnlyPopup({ message: 'È presente almeno un elemento con nome vuoto.' });
+                setTextOnlyPopup({ isErrorMessage: true, message: 'È presente almeno un elemento con nome vuoto.' });
                 setIsListSaving(false);
                 return;
             }
 
             if (itemsList.some( (item) => item.item_quantity === '')) {
-                setTextOnlyPopup({ message: 'È presente almeno un elemento con quantità vuota.'});
+                setTextOnlyPopup({ isErrorMessage: true, message: 'È presente almeno un elemento con quantità vuota.'});
                 setIsListSaving(false);
                 return;
             }
@@ -103,7 +103,7 @@ function NewList() {
                 setTextOnlyPopup({message: 'Inserire almeno un elemento'}); */
         }
         else {
-            setTextOnlyPopup({message: 'Inserire il nome della lista'});
+            setTextOnlyPopup({ isErrorMessage: true, message: 'Inserire il nome della lista' });
             setIsListSaving(false);
             return;
         }

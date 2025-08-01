@@ -21,6 +21,11 @@ function TextOnlyPopup() {
     return (
         textOnlyPopup.message && (
             <div id="popup_wrapper">
+                {textOnlyPopup.isErrorMessage && (
+                    <h1>
+                        ERRORE
+                    </h1>
+                )}
                 <p id="popup-message">{textOnlyPopup.message}</p>
                 <button onClick={() => handleClosePopup(textOnlyPopup.shouldRefreshPage, textOnlyPopup.destinationLink)}>OK</button>
             </div>

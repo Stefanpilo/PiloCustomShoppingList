@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
-import { useGlobalContext } from '../../context/GlobalContext';
 import { usePopup } from '../../popups/PopupContext';
+import { useGlobalContext } from '../../context/GlobalContext';
 import { useAuth } from '../../context/AuthContext';
 
 import Header from '../Header/Header';
@@ -308,18 +308,18 @@ function OnlineListHandler() {
 
         //Controllo errori
         if (currentListLastModifiedDate !== listLastModifiedDate) {
-            setTextOnlyPopup({ message: 'Non si ha la versione aggiornata della lista.\nPremere ok per ricaricare.', shouldRefreshPage: true });
+            setTextOnlyPopup({ isErrorMessage: true, message: 'Non si ha la versione aggiornata della lista.\nPremere ok per ricaricare.', shouldRefreshPage: true });
             return;
         }
 
         if (currentDbData.items.some((item) => item.item_name === '')) {
-            setTextOnlyPopup({ message: 'È presente almeno un elemento con nome vuoto.' });
+            setTextOnlyPopup({ isErrorMessage: true, message: 'È presente almeno un elemento con nome vuoto.' });
             setIsListSaving(false);
             return;
         }
 
         if (currentDbData.items.length === 0) {
-            setTextOnlyPopup({ message: 'Nella lista non è presente alcun elemento.' });
+            setTextOnlyPopup({ isErrorMessage: true, message: 'Nella lista non è presente alcun elemento.' });
             setIsListSaving(false);
             return;
         }
@@ -472,11 +472,11 @@ function OfflineListHandler() {
 
 
         if (!newListName) {
-            setTextOnlyPopup({message: 'Inserire il nome della lista'});
+            setTextOnlyPopup({ isErrorMessage: true, message: 'Inserire il nome della lista' });
             return;
         }
         if (itemsList.length === 0) {
-            setTextOnlyPopup({message: 'Inserire almeno un elemento'});
+            setTextOnlyPopup({ isErrorMessage: true, message: 'Inserire almeno un elemento' });
             return;
         }
 

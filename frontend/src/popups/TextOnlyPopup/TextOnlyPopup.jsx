@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-import { usePopup } from './PopupContext';
+import { usePopup } from '../PopupContext';
 
 import './TextOnlyPopup.css'
 

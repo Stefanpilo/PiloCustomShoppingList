@@ -1,5 +1,5 @@
 
-import { usePopup } from './PopupContext';
+import { usePopup } from '../PopupContext';
 
 import './ConfirmPopup.css';
 

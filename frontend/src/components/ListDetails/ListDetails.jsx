@@ -97,7 +97,7 @@ function OnlineListHandler() {
             item_name: '',
             item_quantity: 1,
             item_checked: false,
-            item_posInList: currentDbData.items.length,
+            item_pos_in_list: currentDbData.items.length,
             list_id: currentListID
         };
 
@@ -130,7 +130,7 @@ function OnlineListHandler() {
 
             let i = 0;
             oldItemsList.forEach(item => {
-                if (i === itemToRemove.item_posInList) {
+                if (i === itemToRemove.item_pos_in_list) {
                     const isAddedIndex = prev.added.findIndex(el => el.id === itemToRemove.id);
                     if (isAddedIndex !== -1) {
                         newAdded = prev.added.filter(el => el.id !== itemToRemove.id);
@@ -142,12 +142,12 @@ function OnlineListHandler() {
                         });
                     }
                 }
-                if ( i > itemToRemove.item_posInList) {
+                if ( i > itemToRemove.item_pos_in_list) {
                     const isAddedIndex = prev.added.findIndex( el => el.id === item.id );
                     if (isAddedIndex !== -1) {
                         newAdded[isAddedIndex] = {
                             ...newAdded[isAddedIndex],
-                            item_posInList: i - 1
+                            item_pos_in_list: i - 1
                         };
                     }
                     else {
@@ -155,13 +155,13 @@ function OnlineListHandler() {
                         if (isModifiedIndex !== -1) {
                             newModified[isModifiedIndex] = {
                                 ...newModified[isModifiedIndex],
-                                item_posInList: i - 1
+                                item_pos_in_list: i - 1
                             };
                         }
                         else {
                             newModified.push({
                                 ...item,
-                                item_posInList: i
+                                item_pos_in_list: i
                             });
                         }
                     }
@@ -209,27 +209,27 @@ function OnlineListHandler() {
                 if (isAddedIndex !== -1)
                     newAdded[isAddedIndex] = {
                         ...newAdded[isAddedIndex],
-                        item_posInList: posToSwap
+                        item_pos_in_list: posToSwap
                     };
                 else {
                     const isModifiedIndex = prev.modified.findIndex(el => el.id === elToSwap.id);
                     if (isModifiedIndex !== -1) {
                         newModified[isModifiedIndex] = {
                             ...newModified[isModifiedIndex],
-                            item_posInList: posToSwap
+                            item_pos_in_list: posToSwap
                         }   
                     }
                     else {
                         newModified.push( {
                             ...elToSwap,
-                            item_posInList: posToSwap
+                            item_pos_in_list: posToSwap
                         })
                     }
                 }
             }
 
-            checkElementToUpdate(elToSwap1, elToSwap2.item_posInList);
-            checkElementToUpdate(elToSwap2, elToSwap1.item_posInList);
+            checkElementToUpdate(elToSwap1, elToSwap2.item_pos_in_list);
+            checkElementToUpdate(elToSwap2, elToSwap1.item_pos_in_list);
             
             return {
                 ...prev,
@@ -242,7 +242,7 @@ function OnlineListHandler() {
     function reCalculateListItemsOrder(itemsListToSort) {
         let i = 0;
         itemsListToSort.forEach(item => {
-            item.item_posInList = i;
+            item.item_pos_in_list = i;
             i++;
         });
 
@@ -338,7 +338,7 @@ function OnlineListHandler() {
             //console.log('salvato. risposta:');
             //console.log(response);
             setListLastModifiedDate( await getListLastModifiedDate() );
-            setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + newListName});
+            setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + encodeURIComponent(newListName)});
         }
         else {
             console.log('nessun aggiornamento da fare');
@@ -420,7 +420,7 @@ function OfflineListHandler() {
 
     
     const addRow = () => {
-        setItemsList([...itemsList, {item_name: '', item_quantity: 1, item_checked: false, item_posInList : itemsList.length}]);
+        setItemsList([...itemsList, {item_name: '', item_quantity: 1, item_checked: false, item_pos_in_list : itemsList.length}]);
     }
     
     const removeRow = (index) => {
@@ -446,7 +446,7 @@ function OfflineListHandler() {
     function reCalculateListItemsOrder(itemsListToSort) {
         let i = 0;
         itemsListToSort.forEach(item => {
-            item.item_posInList = i;
+            item.item_pos_in_list = i;
             i++;
         });
 

@@ -1,20 +1,25 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
+import { usePopup } from '../../popups/PopupContext.jsx'
 import { useGlobalContext } from '../../context/GlobalContext.js';
 import { useAuth } from '../../context/AuthContext.js';
+
 import LocalStorageHook from '../../hooks/LocalStorageHook.jsx';
 import ReadOnlineDbHook from '../../hooks/ReadOnlineDbHook.jsx';
+import SaveOnlineDbHook from '../../hooks/SaveOnlineDbHook.jsx';
 
 import Header from '../Header/Header.jsx'
 
 import './HomePage.css'
 
 function HomePage() {
+    const { createConfirmPopup } = usePopup();
     const { ROUTES, setCurrentListID } = useGlobalContext();
     const { isUserLoggedIn } = useAuth();
-    const { localStorageDb } = LocalStorageHook();
+    const { localStorageDb, setLocalStorageDb } = LocalStorageHook();
     const { getListsByUserID } = ReadOnlineDbHook();
+    const { deleteList } = SaveOnlineDbHook();
     const [homePageLoaded, setHomePageLoaded] = useState(false);
     const [onlineDbData, setOnlineDbData] = useState([]);
 
@@ -28,6 +33,29 @@ function HomePage() {
             })();
         }
     }, [isUserLoggedIn, getListsByUserID]);
+
+    async function handleDeleteList(index, list_id) {
+        if (isUserLoggedIn) {
+            const listToRemove = onlineDbData[index];
+            const confirmPopupResponse = await createConfirmPopup('Sei sicuro di voler eliminare la lista ' + listToRemove.list_name + '?');
+            if (confirmPopupResponse) {
+                const deleteListResponse = await deleteList(listToRemove.list_id);
+                if (deleteListResponse?.result)
+                    setOnlineDbData((prev) => prev.filter((_, idx) => idx !== index));
+                else {
+                    console.log(deleteListResponse);
+                }
+            }
+        }
+        else {
+            const listToRemove = Object.keys(localStorageDb)[index];
+            const confirmPopupResponse = await createConfirmPopup('Sei sicuro di voler eliminare la lista ' + listToRemove + '?');
+            if (confirmPopupResponse) {
+                const { [listToRemove]: _, ...newLocalStorageDb } = localStorageDb;
+                setLocalStorageDb(newLocalStorageDb);
+            }
+        }
+    }
 
     return (
         <>
@@ -45,11 +73,11 @@ function HomePage() {
                         Object.keys(localStorageDb).length > 0 ? (
                             Object.keys(localStorageDb).map( (listName, index) => (
                                 <div className="single-list_wrapper" key={index}>
-                                    <Link to={`${ROUTES.LIST_DETAILS}/${listName}`} className="list-link">
+                                    <Link to={`${ROUTES.LIST_DETAILS}/${encodeURIComponent(listName)}`} className="list-link">
                                         {listName}
                                     </Link>
                                     <button>Esporta</button>
-                                    <button>Elimina</button>
+                                    <button onClick={() => handleDeleteList(index)}>Elimina</button>
                                 </div>
                             ))
                         )
@@ -65,7 +93,7 @@ function HomePage() {
                                             {element.list_name}
                                         </Link>
                                         <button>Esporta</button>
-                                        <button className={element.list_id}>Elimina</button>
+                                        <button onClick={() => handleDeleteList(index, element.list_id)}>Elimina</button>
                                     </div>
                                 ))
                             )

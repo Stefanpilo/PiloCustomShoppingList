@@ -21,11 +21,11 @@ function NewList() {
     const { insertNewListWithItems } = SaveOnlineDbHook();
 
     const [listName, setListName] = useState('');
-    const [itemsList, setItemsList] = useState([{ item_name: '', item_quantity: 1, item_checked: false, item_posInList: 0 }]);
+    const [itemsList, setItemsList] = useState([{ item_name: '', item_quantity: 1, item_checked: false, item_pos_in_list: 0 }]);
     const [isListSaving, setIsListSaving] = useState(false);
 
     const addRow = () => {
-        setItemsList([...itemsList, { item_name: '', item_quantity: 1, item_checked: false, item_posInList: itemsList.length }]);
+        setItemsList([...itemsList, { item_name: '', item_quantity: 1, item_checked: false, item_pos_in_list: itemsList.length }]);
     }
 
     const removeRow = (index) => {
@@ -53,7 +53,7 @@ function NewList() {
     const reCalculateListItemsOrder = (itemsListToSort) => {
         let i = 0;
         itemsListToSort.forEach(item => {
-            item.item_posInList = i;
+            item.item_pos_in_list = i;
             i++;
         });
 

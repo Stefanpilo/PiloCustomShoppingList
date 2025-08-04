@@ -1,4 +1,3 @@
-
 import { usePopup } from '../PopupContext';
 
 import './ConfirmPopup.css';
@@ -8,7 +7,7 @@ function ConfirmPopup() {
 
     async function handleResponse(value) {
         confirmPopup.resolve(value);
-        setConfirmPopup({message: ''});
+        setConfirmPopup('');
     }
 
     return (

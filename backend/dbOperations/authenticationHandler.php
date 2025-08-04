@@ -12,7 +12,8 @@
         $response = [];
         global $secret_key;
         $password_required = true;
-        $token_exp = time() + (60*60*24);
+        $token_exp = 0;
+        //$token_exp = time() + (60*60*24);
 
         $pdo = getDbConnection();
         
@@ -31,7 +32,7 @@
             if ($username === 'friends') {
                 $password_required = false;
             }
-            else {
+            else if ($token_exp > 0) {
                 $payload['exp'] = $token_exp;
             }
 

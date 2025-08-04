@@ -7,7 +7,7 @@ function SaveOnlineDbHook() {
     const { currentListID, requestTypes, backendApiEndpoint } = useGlobalContext();
     const { userID } = useAuth();
 
-    const insertNewListWithItems = useCallback( (dataToSave) => {
+    const insertNewListWithItems = useCallback( async (dataToSave) => {
         const dataToSend = {
             requestType: requestTypes.dbCall,
             action: 'insertNewListWithItems',
@@ -16,17 +16,20 @@ function SaveOnlineDbHook() {
             listItems: dataToSave.listItems
         }
         
-        return fetch(backendApiEndpoint, {
-            method: 'POST',
-            headers: { 'Content-type': 'application/json' },
-            body: JSON.stringify(dataToSend)
-        })
-        .then( response => response.ok ? response.json().catch(error => {throw new Error('json parse error: ' + error)} ) : Promise.reject('response is not ok') )
-        .then( data => data.result )
-        .catch( error => { console.error('fetch error (insert new list with items):'); console.error(error); } );
+        try {
+            const response = await fetch(backendApiEndpoint, {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json' },
+                body: JSON.stringify(dataToSend)
+            });
+            const data = await (response.ok ? response.json().catch(error => { throw new Error('json parse error: ' + error); }) : Promise.reject('response is not ok'));
+            return data.result;
+        } catch (error_1) {
+            console.error('fetch error (insert new list with items):'); console.error(error_1);
+        }
     }, [requestTypes, userID, backendApiEndpoint]);
 
-    const updateListName = useCallback( (dataToSave) => {
+    const updateListName = useCallback( async (dataToSave) => {
         const dataToSend = {
             requestType: requestTypes.dbCall,
             action: 'updateListName',
@@ -45,7 +48,7 @@ function SaveOnlineDbHook() {
         .catch( error => { console.error('fetch error (update list name):'); console.error(error); } );
     }, [requestTypes, userID, currentListID, backendApiEndpoint]);
 
-    const updateListItems = useCallback( (updates) => {
+    const updateListItems = useCallback( async (updates) => {
         let shouldCallDb = false;
         const dataToSend = {
             requestType: requestTypes.dbCall,
@@ -92,10 +95,29 @@ function SaveOnlineDbHook() {
         }
     }, [requestTypes, userID, currentListID, backendApiEndpoint]);
 
+    const deleteList = useCallback( async (listID) => {
+        const dataToSend = {
+            requestType: requestTypes.dbCall,
+            action: 'deleteList',
+            userID: userID,
+            listID: listID
+        };
+
+        return fetch(backendApiEndpoint, {
+            method: 'POST',
+            headers: { 'Content-type': 'application/json' },
+            body: JSON.stringify(dataToSend)
+        })
+        .then( response => response.ok ? response.json().catch(error => {throw new Error('json parse error: ' + error)}) : Promise.reject('response is not ok') )
+        .then( data => data.result )
+        .catch( error => error );
+    }, [requestTypes, userID, backendApiEndpoint]);
+
     return {
         insertNewListWithItems,
         updateListName,
-        updateListItems
+        updateListItems,
+        deleteList
     };
 }
 

@@ -3,7 +3,7 @@ import { Preferences } from "@capacitor/preferences";
 
 import { useGlobalContext } from "../context/GlobalContext";
 
-function LocalStorageHook() {
+export default function LocalStorageHook() {
     const { localStorageDbName } = useGlobalContext();
     const [localStorageDb, setLocalStorageDb] = useState({});
     
@@ -23,6 +23,8 @@ function LocalStorageHook() {
     useEffect(() => {
         if (localStorageDb && Object.keys(localStorageDb).length > 0)
             Preferences.set({ key: localStorageDbName, value: JSON.stringify(localStorageDb) });
+        else
+            Preferences.remove({ key: localStorageDbName });
     }, [localStorageDbName, localStorageDb]);
 
     return {
@@ -30,5 +32,3 @@ function LocalStorageHook() {
         setLocalStorageDb
     };
 }
-
-export default LocalStorageHook;

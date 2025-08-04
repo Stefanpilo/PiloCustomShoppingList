@@ -67,7 +67,8 @@
 
         $query =   'SELECT *
                     FROM shopping_list_items
-                    WHERE list_id = ?';
+                    WHERE list_id = ?
+                    GROUP BY item_pos_in_list';
         $stmt = $pdo->prepare($query);
         $stmt->execute([$listID]);
         $response['items'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -119,7 +120,7 @@
         $response = [];
         $pdo = getDbConnection();
 
-        $query =   'INSERT INTO shopping_list_items (list_id, item_name, item_quantity, item_checked, item_posInList)
+        $query =   'INSERT INTO shopping_list_items (list_id, item_name, item_quantity, item_checked, item_pos_in_list)
                     VALUES (?, ?, ?, ?, ?)';
         $stmt = $pdo->prepare($query);
         $stmt->execute([
@@ -127,7 +128,7 @@
             $item['item_name'],
             $item['item_quantity'],
             $item['item_checked'],
-            $item['item_posInList']
+            $item['item_pos_in_list']
         ]);
 
         $response['successful'] = $stmt->rowCount() > 0;
@@ -175,7 +176,7 @@
         $pdo = getDbConnection();
 
         $query =   'UPDATE shopping_list_items
-                    SET item_name = ?, item_quantity = ?, item_checked = ?, item_posInList = ?
+                    SET item_name = ?, item_quantity = ?, item_checked = ?, item_pos_in_list = ?
                     WHERE item_id = ? AND list_id = ?';
                     
         $stmt = $pdo->prepare($query);
@@ -183,7 +184,7 @@
             $item['item_name'],
             $item['item_quantity'],
             $item['item_checked'],
-            $item['item_posInList'],
+            $item['item_pos_in_list'],
             $item['item_id'],
             $list_id
         ]);
@@ -191,6 +192,29 @@
         updateListLastModified($list_id);
 
         return $stmt->rowCount() > 0;
+    }
+
+    function deleteList($list_id) {
+        $response = [];
+        $pdo = getDbConnection();
+
+        $query = '  DELETE FROM shopping_lists
+                    WHERE list_id = ?';
+        $stmt = $pdo->prepare($query);
+        $stmt->execute([
+            $list_id
+        ]);
+
+        if ($stmt->rowCount() > 0) {
+            $response['successful'] = true;
+            $response['message'] = 'Lista eliminata con successo.';
+        }
+        else {
+            $response['successful'] = false;
+            $response['message'] = 'Lista non eliminata.';
+        }
+
+        return $response;
     }
 
     function deleteListItem($list_id, $item) {

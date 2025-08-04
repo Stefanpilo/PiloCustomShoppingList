@@ -2,11 +2,13 @@ import { createContext, useState, useContext, useEffect, useCallback } from "rea
 import { Preferences } from '@capacitor/preferences';
 
 import { useGlobalContext } from "./GlobalContext";
+import { usePopup } from "../popups/PopupContext";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
     const { localStorageUserID, backendApiEndpoint, localStorageAuthToken, requestTypes } = useGlobalContext();
+    const { setTextOnlyPopup } = usePopup();
     const [isUserLoggedIn, setIsUserLoggedIn] = useState();
     const [username, setUsername] = useState();
     const [userID, setUserID] = useState(null);
@@ -106,8 +108,8 @@ export function AuthProvider({ children }) {
                 setIsUserLoggedIn(true);
             }
         })
-        .catch(error => {console.error('fetch error (check token validity)'); console.error(error);} );
-    }, [requestTypes, backendApiEndpoint]);
+        .catch(error => setTextOnlyPopup({ isErrorMessage: true, message: error?.message }));
+    }, [requestTypes, backendApiEndpoint, setTextOnlyPopup]);
 
     useEffect( () => {
         const urlParams = new URLSearchParams(window.location.search);
@@ -122,7 +124,9 @@ export function AuthProvider({ children }) {
         else if (userID && authToken)
             checkTokenValidity(userID, authToken);
         else
-            setIsUserLoggedIn(false);        
+            setIsUserLoggedIn(false);
+        
+        
     }, [userID, authToken, attemptLoginUser, checkTokenValidity]);
 
 

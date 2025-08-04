@@ -8,8 +8,8 @@ import './PopupProvider.css';
 
 export function PopupProvider({ children }) {
     const [textOnlyPopup, setTextOnlyPopup] = useState({ message: '' });
-    const [confirmPopup, setConfirmPopup] = useState({ message: '' });
-    const confirmPopupResponse = (message, options = {}) => {
+    const [confirmPopup, setConfirmPopup] = useState('');
+    const createConfirmPopup = (message, options = {}) => {
         return new Promise((resolve) => {
             setConfirmPopup({
                 message,
@@ -20,7 +20,7 @@ export function PopupProvider({ children }) {
         });
     };
     return (
-        <PopupContext.Provider value={{ textOnlyPopup, setTextOnlyPopup, confirmPopup, setConfirmPopup, confirmPopupResponse }} >
+        <PopupContext.Provider value={{ textOnlyPopup, setTextOnlyPopup, confirmPopup, setConfirmPopup, createConfirmPopup }} >
             {children}
             <TextOnlyPopup />
             <ConfirmPopup />

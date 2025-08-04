@@ -62,8 +62,12 @@
                         }
                     break;
 
+                    case 'deleteList':
+                        $response['result'] = deleteList($requestParams['listID']);
+                    break;
+
                     default:
-                    $response['result'] = 'error in switch dbOperation';
+                        $response['result'] = 'error in switch dbOperation';
                 }
             }
         }

@@ -14,28 +14,6 @@ export function AuthProvider({ children }) {
     const [userID, setUserID] = useState(null);
     const [authToken, setAuthToken] = useState(null);
 
-    useEffect(() => {
-        async function loadStorageData() {
-            const userIDData = await Preferences.get({ key: localStorageUserID });
-            const authTokenData = await Preferences.get({ key: localStorageAuthToken });
-
-            if (userIDData.value)
-                setUserID(userIDData.value);
-            if (authTokenData.value)
-                setAuthToken(authTokenData.value);
-
-        }
-
-        loadStorageData();
-        /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, []);
-
-    useEffect(() => {
-        if (userID)
-            Preferences.set({ key: localStorageUserID, value: userID });
-        if (authToken)
-            Preferences.set({ key: localStorageAuthToken, value: authToken });
-    }, [userID, authToken, localStorageUserID, localStorageAuthToken]);
 
     const registerUser = useCallback( async (username, password) => {
         let dataToSend = {
@@ -111,7 +89,46 @@ export function AuthProvider({ children }) {
         .catch(error => setTextOnlyPopup({ isErrorMessage: true, message: error?.message }));
     }, [requestTypes, backendApiEndpoint, setTextOnlyPopup]);
 
+
+    useEffect(() => {
+        //To load userID and authToken from localStorage when app loads
+        async function loadStorageData() {
+            const userIDData = await Preferences.get({ key: localStorageUserID });
+            const authTokenData = await Preferences.get({ key: localStorageAuthToken });
+
+            if (userIDData.value)
+                setUserID(userIDData.value);
+            if (authTokenData.value)
+                setAuthToken(authTokenData.value);
+        }
+
+        loadStorageData();
+        /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    }, []);
+
+    useEffect(() => {
+        /* infinityfree forces the cookie "__test", but sometimes it doesn't generate cause of a bug with a service worker
+        /* if the bug occurs, every service worker is removed and the page is refreshed to force the generation of the cookie
+        /* this should not trigger if offline (localhost)
+        */
+       if ( !(window.location.host.includes('localhost')) && (!document.cookie.includes('__test=')) && ('serviceWorker' in navigator) ) {
+            navigator.serviceWorker.getRegistrations().then(registrations => {
+                Promise.all(registrations.map(registration => registration.unregister()))
+                .then(() => window.location.reload());
+            });
+           }
+    }, []);
+
+    useEffect(() => {
+        //To save userID and authToken on localStorage when they change in the app
+        if (userID)
+            Preferences.set({ key: localStorageUserID, value: userID });
+        if (authToken)
+            Preferences.set({ key: localStorageAuthToken, value: authToken });
+    }, [userID, authToken, localStorageUserID, localStorageAuthToken]);
+
     useEffect( () => {
+        //To check if user is loging in from url
         const urlParams = new URLSearchParams(window.location.search);
         const loginParams = {
             username: urlParams.get('username'),
@@ -125,8 +142,6 @@ export function AuthProvider({ children }) {
             checkTokenValidity(userID, authToken);
         else
             setIsUserLoggedIn(false);
-        
-        
     }, [userID, authToken, attemptLoginUser, checkTokenValidity]);
 
 

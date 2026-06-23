@@ -14,6 +14,7 @@
 
 #backend
 /backend/dbOperations/dbCredentials.php
+/*.sql
 
 # misc
 .DS_Store

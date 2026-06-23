@@ -12,7 +12,7 @@ export function GlobalProvider({ children }) {
         LOGIN_PAGE: '/login'
     };
     
-    const rootDirectory = 'https://pilotest.ct.ws';
+    const rootDirectory = 'https://pilo-custom-shopping-list.infinityfree.me';
     const backendApiEndpoint = rootDirectory + '/backend/APIEndpoint.php';
     const localStorageDbName = 'piloCustomShoppingList';
     const localStorageUserID = localStorageDbName + 'UserID';

@@ -59,7 +59,7 @@ function HomePage() {
 
     return (
         <>
-            <Header navBar={{newListBtn: true, importBtn: true}}/>
+            <Header navBar={{newListBtn: true}}/>
             <div id="home-page_root">
                 <h1 id="home-page-title" className="page-h1">
                     Elenco liste
@@ -76,7 +76,6 @@ function HomePage() {
                                     <Link to={`${ROUTES.LIST_DETAILS}/${encodeURIComponent(listName)}`} className="list-link">
                                         {listName}
                                     </Link>
-                                    <button>Esporta</button>
                                     <button onClick={() => handleDeleteList(index)}>Elimina</button>
                                 </div>
                             ))
@@ -92,7 +91,6 @@ function HomePage() {
                                         <Link to={`${ROUTES.LIST_DETAILS}/${encodeURIComponent(element.list_name)}`} className='list-link' onClick={() => { setCurrentListID(element.list_id); }}>
                                             {element.list_name}
                                         </Link>
-                                        <button>Esporta</button>
                                         <button onClick={() => handleDeleteList(index, element.list_id)}>Elimina</button>
                                     </div>
                                 ))

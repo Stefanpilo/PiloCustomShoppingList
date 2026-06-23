@@ -1,0 +1,19 @@
+php_value date.timezone Europe/Rome
+
+RewriteEngine On
+
+# Forza il caricamento in https
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://${HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Assicura che l'header Authorization arrivi correttamente al backend
+RewriteCond %{HTTP:Authorization} ^(.*)
+RewriteRule .* - [E=HTTP_AUTHORIZATION:%1]
+
+# Reindirizza tutte le richieste alla index.html
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.html [QSA,L]
+
+# Assicurati che i file statici come js, css, immagini vengano serviti correttamente
+RewriteRule ^(static/.*)$ - [L]

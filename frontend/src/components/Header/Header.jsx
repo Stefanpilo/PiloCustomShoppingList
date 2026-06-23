@@ -38,11 +38,6 @@ function Header({ navBar }) {
                     <Link to={ROUTES.NEW_LIST} className="link_button default_button">
                         Nuova lista
                     </Link>
-                )}                    
-                {navBar.importBtn && (
-                    <Link className="link_button default_button">
-                        Importa
-                    </Link>
                 )}
                 {!isUserLoggedIn ? (
                     (location.pathname === ROUTES.LOGIN_PAGE && location.state?.operationType === 'login') ? (

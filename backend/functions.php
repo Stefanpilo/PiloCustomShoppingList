@@ -2,6 +2,8 @@
     function getAuthHeader() {
         if (isset($_SERVER['HTTP_AUTHORIZATION']))
             $authHeader = $_SERVER['HTTP_AUTHORIZATION'];
+        elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION']))
+            $authHeader = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
         elseif (isset($_SERVER['Authorization']))
             $authHeader = $_SERVER['Authorization'];
         elseif (function_exists('apache_request_headers')) {

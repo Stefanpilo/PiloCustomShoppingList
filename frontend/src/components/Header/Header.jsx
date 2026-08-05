@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 
 import { useGlobalContext } from "../../context/GlobalContext";
 import { useAuth } from "../../context/AuthContext";
+import { usePopup } from "../../popups/PopupContext";
 
 import userIcon from "../../images/user-icon.svg"
 
@@ -12,7 +13,14 @@ import './Header.css'
 function Header({ navBar }) {
     const location = useLocation();
     const { ROUTES } = useGlobalContext();
-    const { isUserLoggedIn, username } = useAuth();
+    const { isUserLoggedIn, username, logOutUser } = useAuth();
+    const { createConfirmPopup } = usePopup();
+
+    const handleLogOut = async () => {
+        let confirmPopupResponse = await createConfirmPopup('Vuoi effettuare il log out?');
+        if (confirmPopupResponse)
+            logOutUser();
+    }
 
     return (
         <div id="header_wrapper">
@@ -48,7 +56,7 @@ function Header({ navBar }) {
                     )
                 ) : null}
                 {isUserLoggedIn && (
-                    <div id="userIcon_wrapper">
+                    <div id="userIcon_wrapper" className="button" onClick={handleLogOut}>
                         <img id="user-icon" src={userIcon} alt="user-icon" />
                         <p id="username">{username}</p>
                     </div>

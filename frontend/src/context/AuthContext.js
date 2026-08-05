@@ -51,10 +51,7 @@ export function AuthProvider({ children }) {
         .then(data => {
             const jsonResponse = data.result;
             if (jsonResponse.successful === 1) {
-                setAuthToken(jsonResponse.auth_token);
-                setUserID(jsonResponse.user_id);
-                setUsername(username);
-                setIsUserLoggedIn(true);
+                logInUser(username, jsonResponse.user_id, jsonResponse.auth_token);
             }
             else
                 setIsUserLoggedIn(false);
@@ -88,6 +85,25 @@ export function AuthProvider({ children }) {
         })
         .catch(error => setTextOnlyPopup({ isErrorMessage: true, message: error?.message }));
     }, [requestTypes, backendApiEndpoint, setTextOnlyPopup]);
+
+    const logInUser =  (username, userid, authToken) => {
+        setUsername(username);
+        setUserID(userid);
+        setAuthToken(authToken);
+        setIsUserLoggedIn(true);
+    }
+
+    const logOutUser = async () => {
+        await Promise.all([
+            Preferences.remove({ key: localStorageUserID }),
+            Preferences.remove({ key: localStorageAuthToken })
+        ]);
+
+        setUsername(null);
+        setUserID(null);
+        setAuthToken(null);
+        setIsUserLoggedIn(false);
+    }
 
 
     useEffect(() => {
@@ -146,7 +162,7 @@ export function AuthProvider({ children }) {
 
 
     return (
-        <AuthContext.Provider value={{ isUserLoggedIn, setIsUserLoggedIn, userID, setUserID, username, registerUser, attemptLoginUser}}>
+        <AuthContext.Provider value={{ isUserLoggedIn, setIsUserLoggedIn, userID, setUserID, username, registerUser, attemptLoginUser, logOutUser}}>
             {children}
         </AuthContext.Provider>
     );

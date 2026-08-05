@@ -76,7 +76,7 @@ function HomePage() {
                                     <Link to={`${ROUTES.LIST_DETAILS}/${encodeURIComponent(listName)}`} className="list-link">
                                         {listName}
                                     </Link>
-                                    <button onClick={() => handleDeleteList(index)}>Elimina</button>
+                                    <button className='delete_button' onClick={() => handleDeleteList(index)}>Elimina</button>
                                 </div>
                             ))
                         )
@@ -91,7 +91,7 @@ function HomePage() {
                                         <Link to={`${ROUTES.LIST_DETAILS}/${encodeURIComponent(element.list_name)}`} className='list-link' onClick={() => { setCurrentListID(element.list_id); }}>
                                             {element.list_name}
                                         </Link>
-                                        <button onClick={() => handleDeleteList(index, element.list_id)}>Elimina</button>
+                                        <button className='delete_button' onClick={() => handleDeleteList(index, element.list_id)}>Elimina</button>
                                     </div>
                                 ))
                             )

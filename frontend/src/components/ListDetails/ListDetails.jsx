@@ -330,13 +330,33 @@ function OnlineListHandler() {
         if (newListName !== listName)
             listNameUpdatedResponse = await updateListName(newListName);
 
-        currentDbData.items.map((item) => item.item_quantity === '' ? item.item_quantity = 1 : item.item_quantity);
+        const updatedList = (item) => ({
+            ...item,
+            item_quantity: item.item_quantity === '' ? 1 : item.item_quantity
+        });
 
-        let response = await updateListItems(updates);
+        const updatesToSave = {
+            added: updates.added.map(updatedList),
+            modified: updates.modified.map(updatedList),
+            removed: updates.removed
+        };
+
+        let response = await updateListItems(updatesToSave);
+
+        setCurrentDbData( (prev) => ({
+            ...prev,
+            items: prev.items.map(updatedList)
+        }))
+
 
         if (response || listNameUpdatedResponse) {
             //console.log('salvato. risposta:');
             //console.log(response);
+            setUpdates((prev) => ({
+                added: [],
+                removed: [],
+                modified: []
+            }));
             setListLastModifiedDate( await getListLastModifiedDate() );
             setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + encodeURIComponent(newListName)});
         }
@@ -344,11 +364,6 @@ function OnlineListHandler() {
             console.log('nessun aggiornamento da fare');
         }
 
-        setUpdates((prev) => ({
-            added: [],
-            removed: [],
-            modified: []
-        }));
 
         setIsListSaving(false);
     }
@@ -386,7 +401,7 @@ function OnlineListHandler() {
                                         <button className="move-row_button move-row-down" disabled={index === currentDbData.items.length -1} onClick={(e) => moveRow('DOWN', index)}>D</button>
                                     </div>
                                     <input name="item-name" className="item-name" type="text" placeholder="Nome elemento" value={item.item_name || ''} onChange={(e) => updateRowValue(item.id, e.target.value, 'name')} />
-                                    <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={item.item_quantity || 1} onChange={(e) => updateRowValue(item.id, Number(e.target.value) === 0 ? '' : Number(e.target.value), 'quantity')} />
+                                    <input name="item-quantity" className="item-quantity" type="number" placeholder="Quantità" min={1} value={item.item_quantity} onChange={(e) => updateRowValue(item.id, Number(e.target.value) === 0 ? '' : Number(e.target.value), 'quantity')} />
                                     <button className="remove-row_button" onClick={() => removeRow(item.id)}>
                                         <img src={binIcon} alt="bin" />
                                     </button>

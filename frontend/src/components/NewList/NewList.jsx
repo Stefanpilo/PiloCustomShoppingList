@@ -69,21 +69,22 @@ function NewList() {
     async function saveList() {
         setIsListSaving(true);
 
+        const updatedList = itemsList.map( (item) => ({
+            ...item,
+            item_quantity: item.item_quantity === '' ? 1 : item.item_quantity
+        }));
+
+
+
         if (listName) {
-            if (itemsList.length === 0) {
+            if (updatedList.length === 0) {
                 setTextOnlyPopup({ isErrorMessage: true, message: 'Inserire almeno un elemento' });
                 setIsListSaving(false);
                 return;
             }
 
-            if (itemsList.some( (item) => item.item_name === '')) {
+            if (updatedList.some( (item) => item.item_name === '')) {
                 setTextOnlyPopup({ isErrorMessage: true, message: 'È presente almeno un elemento con nome vuoto.' });
-                setIsListSaving(false);
-                return;
-            }
-
-            if (itemsList.some( (item) => item.item_quantity === '')) {
-                setTextOnlyPopup({ isErrorMessage: true, message: 'È presente almeno un elemento con quantità vuota.'});
                 setIsListSaving(false);
                 return;
             }
@@ -113,7 +114,7 @@ function NewList() {
         if (isUserLoggedIn) {
             const dataToSave = {
                 listName: listName,
-                listItems: itemsList
+                listItems: updatedList
             }
 
             let insertSuccessful = await insertNewListWithItems(dataToSave);
@@ -124,7 +125,7 @@ function NewList() {
         else {
             const newDb = {
                 ...localStorageDb,
-                [listName]: itemsList
+                [listName]: updatedList
             }
             setLocalStorageDb(newDb);
 

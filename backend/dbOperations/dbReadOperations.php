@@ -45,7 +45,7 @@
         $response = [];
         $pdo = getDbConnection();
 
-        $query =   'SELECT list_name, last_modified, list_version
+        $query =   'SELECT list_name, last_modified, list_version, list_signature
                     FROM shopping_lists
                     WHERE list_id = ? AND user_id = ?';
         

@@ -40,8 +40,9 @@ function OnlineListHandler() {
     
     const [onlineDbData, setOnlineDbData] = useState([]);
     const [currentDbData, setCurrentDbData] = useState([]);
-    const [newListName, setNewListName] = useState(listName);
     const [listDetails, setListDetails] = useState(null);
+    const [newListName, setNewListName] = useState(listName);
+    const [newListSignature, setNewListSignature] = useState('');
     const [isListOutdated, setIsListOutdated] = useState(false);
     const [isListUpdating, setIsListUpdating] = useState(false);
     const [updates, setUpdates] = useState({
@@ -141,6 +142,7 @@ function OnlineListHandler() {
             setOnlineDbData(items);
             setListDetails(details);
             setNewListName(details.list_name);
+            setNewListSignature('');
             setUpdates({
                 added: [],
                 removed: [],
@@ -419,7 +421,8 @@ function OnlineListHandler() {
             modified: updates.modified.map(updatedList),
             removed: updates.removed,
             listName: newListName,
-            listVersion: listDetails.list_version
+            listVersion: listDetails.list_version,
+            listSignature: newListSignature.trim() || null
         };
 
         let response = await saveListChanges(listID, updatesToSave);
@@ -467,14 +470,24 @@ function OnlineListHandler() {
                     : (<>
                         <div id="list-versioning_wrapper">
                             {isListOutdated ? (
-                                <span className="list-versioning_outdated">Lista non aggiornata. Aggiorna
-                                    <button className="list-versioning_refresh" onClick={handleRefreshList}>{isListUpdating ? '⟳' : '↻' }</button>
-                                </span>
+                                <div className="list-versioning_outdated">
+                                    {listDetails.list_signature && (
+                                        <p>Ultima versione da {listDetails.list_signature}</p>
+                                    )}
+                                    <span>{listDetails.list_signature ? 'Aggiorna' : 'Lista non aggiornata. Aggiorna'}
+                                        <button className="list-versioning_refresh" onClick={handleRefreshList}>{isListUpdating ? '⟳' : '↻' }</button>
+                                    </span>
+                                </div>
                             ) :
                             (
-                                <span className="list-versioning_updated">Ultima modifica: 
-                                    <time>{formatDateTime(listDetails.last_modified)}</time>
-                                </span>
+                                <div className="list-versioning_updated">
+                                    <span>Ultima modifica: 
+                                        <time>{formatDateTime(listDetails.last_modified)}</time>
+                                    </span>
+                                    {listDetails.list_signature && (
+                                        <p>Da {listDetails.list_signature}</p>
+                                    )}
+                                </div>
                             )}
                         </div>
                         <div id="list-details-table-header">
@@ -502,6 +515,11 @@ function OnlineListHandler() {
                         ))}
                     </div>
                     <button id="add-row_button" onClick={addRow}>+</button>
+                    
+                    <div id="list-signature_wrapper">
+                        <label>Firma (opzionale)</label>
+                        <input className="list-signature" type="text" maxLength={128} value={newListSignature} onChange={(e) => setNewListSignature(e.target.value)}></input>
+                    </div>
                     
                     <button id="save-list_button" className="default_button" onClick={saveList} disabled={isListSaving}>{isListSaving ? 'Salvataggio' : 'Salva lista'}</button>
                     </>)}

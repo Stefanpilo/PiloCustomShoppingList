@@ -93,9 +93,7 @@
                     break;
 
                     case 'insertNewListWithItems':
-                        $list_name = $requestParams['listName'];
-                        $list_items = $requestParams['listItems'];
-                        $response['result'] = insertNewListWithItems($authenticatedUserID, $list_name, $list_items);
+                        $response['result'] = insertNewListWithItems($authenticatedUserID, $requestParams['listName'], $requestParams['listSignature'] ?? null, $requestParams['listItems']);
                     break;
 
                     /*case 'updateListName':
@@ -109,7 +107,7 @@
                         $response['result'] = applyListItemsChanges($requestParams['listID'], $requestParams['listVersion'], $requestParams['data-insert'], $requestParams['data-update'], $requestParams['data-delete']);
                     break;*/
                     case 'saveListChanges':
-                        $response['result'] = saveListChanges($authenticatedUserID, $requestParams['listID'], $requestParams['listName'], $requestParams['listVersion'], $requestParams['data-insert'], $requestParams['data-update'], $requestParams['data-delete']);
+                        $response['result'] = saveListChanges($authenticatedUserID, $requestParams['listID'], $requestParams['listName'], $requestParams['listVersion'], $requestParams['listSignature'] ?? null, $requestParams['data-insert'], $requestParams['data-update'], $requestParams['data-delete']);
                     break;
 
                     case 'deleteList':

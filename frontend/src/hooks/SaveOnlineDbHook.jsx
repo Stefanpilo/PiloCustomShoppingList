@@ -15,7 +15,8 @@ function SaveOnlineDbHook() {
             action: 'insertNewListWithItems',
             userID: userID,
             listName: dataToSave.listName,
-            listItems: dataToSave.listItems
+            listItems: dataToSave.listItems,
+            listSignature: dataToSave.listSignature
         }
         
 
@@ -44,6 +45,7 @@ function SaveOnlineDbHook() {
             listID: listID,
             listName: changes.listName,
             listVersion: changes.listVersion,
+            listSignature: changes.listSignature,
             'data-insert': changes.added ?? [],
             'data-update': changes.modified ?? [],
             'data-delete': changes.removed ?? []

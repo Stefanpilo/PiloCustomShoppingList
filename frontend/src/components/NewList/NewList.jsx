@@ -21,6 +21,7 @@ function NewList() {
     const { insertNewListWithItems } = SaveOnlineDbHook();
 
     const [listName, setListName] = useState('');
+    const [listSignature, setListSignature] = useState('');
     const [itemsList, setItemsList] = useState([{ item_name: '', item_quantity: 1, item_checked: false, item_pos_in_list: 0 }]);
     const [isListSaving, setIsListSaving] = useState(false);
 
@@ -114,7 +115,8 @@ function NewList() {
         if (isUserLoggedIn) {
             const dataToSave = {
                 listName: listName,
-                listItems: updatedList
+                listItems: updatedList,
+                listSignature: listSignature.trim() || null
             }
 
             let insertSuccessful = await insertNewListWithItems(dataToSave);
@@ -170,6 +172,13 @@ function NewList() {
                 </div>
 
                 <button id="add-row_button" onClick={addRow}>+</button>
+
+                {isUserLoggedIn && (
+                    <div id="list-signature_wrapper">
+                        <label>Firma (opzionale)</label>
+                        <input className="list-signature" type="text" maxLength={128} value={listSignature} onChange={(e) => setListSignature(e.target.value)}></input>
+                    </div>
+                )}
 
                 <button id="save-list_button" className="default_button" onClick={saveList} disabled={isListSaving}>{isListSaving ? 'Salvataggio' : 'Salva lista'}</button>
             </div>

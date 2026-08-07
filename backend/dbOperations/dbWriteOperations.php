@@ -1,15 +1,15 @@
 <?php
     require_once __DIR__ . '/dbConnector.php';
 
-    function insertNewListWithItems($user_id, $list_name, $list_items) {
+    function insertNewListWithItems($user_id, $list_name, $list_signature, $list_items) {
         $response = [];
         $pdo = getDbConnection();
 
-        $query =   'INSERT INTO shopping_lists (user_id, list_name)
-                    VALUES (?, ?)';
+        $query =   'INSERT INTO shopping_lists (user_id, list_name, list_signature)
+                    VALUES (?, ?, ?)';
 
         $stmt = $pdo->prepare($query);
-        $stmt->execute([$user_id, $list_name]);
+        $stmt->execute([$user_id, $list_name, $list_signature]);
 
         $list_id = $pdo->lastInsertID();
         $response['list_id'] = $list_id;
@@ -33,7 +33,7 @@
         return $response;
     }
 
-    function saveListChanges($user_id, $list_id, $list_name, $list_version, $itemsToInsert, $itemsToUpdate, $itemsToDelete) {
+    function saveListChanges($user_id, $list_id, $list_name, $list_version, $list_signature, $itemsToInsert, $itemsToUpdate, $itemsToDelete) {
         $pdo = getDbConnection();
 
         $response = [
@@ -49,11 +49,12 @@
 
             $query =   'UPDATE shopping_lists
                         SET list_name = ?,
-                            list_version = list_version + 1
+                            list_version = list_version + 1,
+                            list_signature = ?
                         WHERE list_id = ? AND user_id = ? AND list_version = ?';
 
             $stmt = $pdo->prepare($query);
-            $stmt->execute([$list_name, $list_id, $user_id, $list_version]);
+            $stmt->execute([$list_name, $list_signature, $list_id, $user_id, $list_version]);
 
             if ($stmt->rowCount() !== 1) {
                 $pdo->rollBack();

@@ -98,6 +98,24 @@
     line-height: var(--mobile-default-line-height);
 }
 
+#list-details_root #list-signature_wrapper {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    row-gap: 10px;
+}
+
+#list-details_root #list-signature_wrapper .list-signature {
+    width: 100%;
+    font: inherit;
+    background: none;
+    border: none;
+    border-bottom: 1px solid black;
+    outline: none;
+}
+
 #new-list_root #save-list_button {
     margin-top: 30px;
     align-self: center;
@@ -128,5 +146,16 @@
     #new-list_root #add-row_button {
         font-size: var(--desktop-default-font-size);
         line-height: var(--desktop-default-line-height);
+    }
+
+    #list-details_root #list-signature_wrapper {
+        flex-direction: row;
+        column-gap: 30px;
+        font-size: var(--desktop-default-font-size);
+        line-height: var(--desktop-default-line-height);
+    }
+
+    #list-details_root #list-signature_wrapper .list-signature {
+        width: 50%;
     }
 }

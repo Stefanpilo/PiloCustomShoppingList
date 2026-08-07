@@ -1,5 +1,4 @@
-
--- Aligned with migration 002 --
+-- Aligned with migration 003 --
 
 CREATE TABLE users (
     user_id INT NOT NULL AUTO_INCREMENT,
@@ -20,6 +19,7 @@ CREATE TABLE shopping_lists (
         DEFAULT CURRENT_TIMESTAMP
         ON UPDATE CURRENT_TIMESTAMP,
     list_version INT UNSIGNED NOT NULL DEFAULT 1,
+    list_signature VARCHAR(128),
     
     PRIMARY KEY (list_id),
     KEY idx_shopping_lists_user_id (user_id),

@@ -72,23 +72,35 @@ function OnlineListHandler() {
 
         if (Number.isInteger(numericListID) && numericListID > 0) {
             (async () => {
-                const [items, details] = await Promise.all([
-                    getListItemsByListID(listID),
-                    getListDetails(listID)
-                ]);
-                setOnlineDbData(items);
-                setListDetails(details);
-                setNewListName(details.list_name);
-                setIsListOutdated(false);
-
-                if (details.list_name !== listName) {
-                    navigate( `${ROUTES.LIST_DETAILS}/${listID}/` + encodeURIComponent(details.list_name), { replace: true } );
+                try {
+                    const [items, details] = await Promise.all([
+                        getListItemsByListID(listID),
+                        getListDetails(listID)
+                    ]);
+    
+                    if (!items || !details)
+                        throw new Error('Lista non trovata');
+    
+                    setOnlineDbData(items);
+                    setListDetails(details);
+                    setNewListName(details.list_name);
+                    setIsListOutdated(false);
+    
+                    if (details.list_name !== listName) {
+                        navigate( `${ROUTES.LIST_DETAILS}/${listID}/` + encodeURIComponent(details.list_name), { replace: true } );
+                    }
+                }
+                catch (error) {
+                    setTextOnlyPopup({
+                        isErrorMessage: true,
+                        message: error?.message || 'Impossibile caricare la lista',
+                        destinationLink: ROUTES.HOME
+                    });
                 }
             })();
         }
-        else {
+        else
             navigate(ROUTES.HOME);
-        }
     }, [listID, listName, getListItemsByListID, getListDetails, navigate, ROUTES]);
 
     useEffect(() => {
@@ -110,16 +122,41 @@ function OnlineListHandler() {
     async function handleRefreshList() {
         setIsListUpdating(true);
 
-        const items = await getListItemsByListID(listID);
-        const details = await getListDetails(listID);
+        try {
+            const items = await getListItemsByListID(listID);
+            const details = await getListDetails(listID);
 
-        if (items && details) {
+            if (!items || !details)
+                throw new Error('Lista non trovata');
+
             setOnlineDbData(items);
             setListDetails(details);
+            setNewListName(details.list_name);
+            setUpdates({
+                added: [],
+                removed: [],
+                modified: []
+            });
             setIsListOutdated(false);
-        }
 
-        setIsListUpdating(false);
+            navigate(
+                `${ROUTES.LIST_DETAILS}/${listID}/` + encodeURIComponent(details.list_name),
+                { replace: true }
+            );
+
+            return true;
+        }
+        catch (error) {
+            setTextOnlyPopup({
+                isErrorMessage: true,
+                message: error?.message || 'Impossibile aggiornare la lista'
+            });
+
+            return false;
+        }
+        finally {
+            setIsListUpdating(false);
+        }
     }
 
     function addRow() {
@@ -192,7 +229,7 @@ function OnlineListHandler() {
                         else {
                             newModified.push({
                                 ...item,
-                                item_pos_in_list: i
+                                item_pos_in_list: i - 1
                             });
                         }
                     }
@@ -393,7 +430,7 @@ function OnlineListHandler() {
                 modified: []
             }));
             await handleRefreshList();
-            setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: `${ROUTES.LIST_DETAILS}/${listID}/` +  encodeURIComponent(newListName)});
+            setTextOnlyPopup({ message: 'Lista salvata con successo' });
         }
         else {
             setTextOnlyPopup({ isErrorMessage: true, message: 'Errore durante il salvataggio della lista.' });
@@ -536,7 +573,7 @@ function OfflineListHandler() {
             setTextOnlyPopup({ isErrorMessage: true, message: 'Inserire il nome della lista' });
             return;
         }
-        if (itemsList.length === 0) {
+        if (itemsListToSave.length === 0) {
             setTextOnlyPopup({ isErrorMessage: true, message: 'Inserire almeno un elemento' });
             return;
         }
@@ -557,7 +594,10 @@ function OfflineListHandler() {
             setLocalStorageDb(newDb);
         }
 
-        setTextOnlyPopup({message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + newListName});
+        setTextOnlyPopup({
+            message: 'Lista salvata con successo',
+            destinationLink: `${ROUTES.LIST_DETAILS}/` + encodeURIComponent(newListName)
+        });
     }
 
     return (

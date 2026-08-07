@@ -3,10 +3,12 @@ import { useState, useCallback } from "react";
 import { useGlobalContext } from "../context/GlobalContext";
 import { useAuth } from "../context/AuthContext";
 
+import parseApiResponse from "../utils/parseApiResponse";
+
 
 function ReadOnlineDBHook(dataType) {
-    const { backendApiEndpoint, currentListID, requestTypes } = useGlobalContext();
-    const { userID } = useAuth();
+    const { backendApiEndpoint, requestTypes } = useGlobalContext();
+    const { userID, authToken } = useAuth();
     const [onlineDbData, setOnlineDbData] = useState([]);
 
     const getListsByUserID = useCallback(() => {
@@ -18,48 +20,69 @@ function ReadOnlineDBHook(dataType) {
 
         return fetch(backendApiEndpoint, {
             method: 'POST',
-            headers: { 'Content-type': 'application/json' },
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-type': 'application/json'
+            },
             body: JSON.stringify(dataToSend)
         })
-        .then( response => response.ok ? response.json() : '' )
+        .then(parseApiResponse)
         .then( data => data.result )
-        .catch( error => { console.error('fetch error (get lists by user id):'); console.error(error); } );
-    }, [requestTypes, userID, backendApiEndpoint]);
+        .catch( error => {
+            console.error('fetch error (get lists by user id):');
+            console.error(error);
+            throw error;
+        });
+    }, [requestTypes, userID, backendApiEndpoint, authToken]);
 
 
-    const getListItemsByListID = useCallback(() => {
+    const getListItemsByListID = useCallback((listID) => {
         let dataToSend = {
             requestType: requestTypes.dbCall,
             action: 'getListItemsByListID',
-            listID: currentListID
+            listID: listID
         };
 
         return fetch(backendApiEndpoint, {
             method: 'POST',
-            headers: { 'Content-type': 'application/json' },
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-type': 'application/json'
+            },
             body: JSON.stringify(dataToSend)
         })
-        .then( response => response.ok ? response.json() : '' )
+        .then(parseApiResponse)
         .then( data => data.result )
-        .catch( error => { console.error('fetch error (get list items by list id):'); console.error(error); } );
-    }, [requestTypes, currentListID, backendApiEndpoint]);
+        .catch( error => {
+            console.error('fetch error (get list items by list id):');
+            console.error(error);
+            throw error;
+        });
+    }, [requestTypes, backendApiEndpoint, authToken]);
 
-    const getListDetails = useCallback(() => {
+    const getListDetails = useCallback((listID) => {
         let dataToSend = {
             requestType: requestTypes.dbCall,
             action: 'getListDetails',
-            listID: currentListID
+            listID: listID
         };
 
         return fetch(backendApiEndpoint, {
             method: 'POST',
-            headers: { 'Content-type': 'application/json' },
+            headers: {
+                Authorization: `Bearer ${authToken}`,
+                'Content-type': 'application/json'
+            },
             body: JSON.stringify(dataToSend)
         })
-        .then( response => response.ok ? response.json() : '' )
+        .then(parseApiResponse)
         .then( data => data.result.list_details )
-        .catch( error => { console.error('fetch error (get list details):'); console.error(error); } );
-    }, [requestTypes, currentListID, backendApiEndpoint]);
+        .catch( error => {
+            console.error('fetch error (get list details):');
+            console.error(error);
+            throw error;
+        });
+    }, [requestTypes, backendApiEndpoint, authToken]);
 
     return {
         onlineDbData,

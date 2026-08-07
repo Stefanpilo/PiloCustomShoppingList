@@ -5,6 +5,8 @@ import { Preferences } from '@capacitor/preferences';
 import { useGlobalContext } from "./GlobalContext";
 import { usePopup } from "../popups/PopupContext";
 
+import parseApiResponse from "../utils/parseApiResponse"
+
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -30,9 +32,16 @@ export function AuthProvider({ children }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dataToSend)
         })
-        .then(response => response.ok ? response.json().catch(error => {throw new Error('json parse error ' + error)} ) : Promise.reject('response not ok'))
+        .then(parseApiResponse)
         .then(data => data.result)
-        .catch(error => {console.error('fetch error (register user)'); console.error(error); return error;})
+        .catch(error => {
+            console.error('fetch error (register user)');
+            console.error(error);
+            return {
+                successful: false,
+                message: error?.message || 'Errore durante la registrazione'
+            };
+        });
     }, [requestTypes, backendApiEndpoint]);
 
     const attemptLoginUser = useCallback( async (username, password) => {
@@ -49,8 +58,8 @@ export function AuthProvider({ children }) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(dataToSend)
         })
-        .then(response => response.ok ? response.json().catch(error => {throw new Error('json parse error ' + error)} ) : Promise.reject('response not ok') )
-        .then(data => {
+        .then(parseApiResponse)
+        .then( data => {
             const jsonResponse = data.result;
             if (jsonResponse.successful === 1) {
                 logInUser(username, jsonResponse.user_id, jsonResponse.auth_token);
@@ -60,7 +69,15 @@ export function AuthProvider({ children }) {
 
             return data.result;
         })
-        .catch(error => error );
+        .catch( error => {
+            console.error('fetch error (login user)');
+            console.error(error);
+            setIsUserLoggedIn(false);
+            return {
+                successful: 0,
+                message: error?.message || 'Errore durante il login'
+            };
+        });
     }, [requestTypes, backendApiEndpoint]);
 
     const checkTokenValidity = useCallback( async (userID, loginToken) => {
@@ -71,21 +88,27 @@ export function AuthProvider({ children }) {
             userToken: loginToken
         };
 
-        fetch(backendApiEndpoint, {
+        return fetch(backendApiEndpoint, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${dataToSend.userToken}`,
                 'Content-Type': 'application/json'},
             body: JSON.stringify(dataToSend)
         })
-        .then(response => response.ok ? response.json().catch(error => {throw new Error('json parse error: ' + error)} ) : Promise.reject('response is not ok'))
-        .then(data => {
-            if(data.result.successful === 1) {
+        .then(parseApiResponse)
+        .then( data => {
+            if(data.result.successful === true) {
                 setUsername(data.result.username);
                 setIsUserLoggedIn(true);
             }
+            else {
+                setIsUserLoggedIn(false);
+            }
         })
-        .catch(error => setTextOnlyPopup({ isErrorMessage: true, message: error?.message }));
+        .catch(error => {
+            setIsUserLoggedIn(false);
+            setTextOnlyPopup({ isErrorMessage: true, message: error?.message || 'Impossibile verificare la sessione' });
+        });
     }, [requestTypes, backendApiEndpoint, setTextOnlyPopup]);
 
     const logInUser =  (username, userid, authToken) => {
@@ -166,7 +189,7 @@ export function AuthProvider({ children }) {
 
 
     return (
-        <AuthContext.Provider value={{ isUserLoggedIn, setIsUserLoggedIn, userID, setUserID, username, registerUser, attemptLoginUser, logOutUser}}>
+        <AuthContext.Provider value={{ isUserLoggedIn, setIsUserLoggedIn, userID, setUserID, authToken, username, registerUser, attemptLoginUser, logOutUser}}>
             {children}
         </AuthContext.Provider>
     );

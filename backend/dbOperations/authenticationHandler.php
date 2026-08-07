@@ -3,6 +3,7 @@
 
     require_once($_SERVER['DOCUMENT_ROOT'] . '/backend/libs/Firebase_JWT/JWT.php');
     require_once($_SERVER['DOCUMENT_ROOT'] . '/backend/libs/Firebase_JWT/Key.php');
+    require_once __DIR__ . '/../functions.php';
     use Firebase\JWT\JWT;
     use Firebase\JWT\Key;
 
@@ -57,39 +58,66 @@
         return $response;
     }
 
-    function checkTokenValidity($user_id) {
-        $response = [];
+    function getAuthenticatedUserID() {
         global $secret_key;
-        
-        require_once($_SERVER['DOCUMENT_ROOT'] . '/backend/functions.php');
+
         $token = getAuthHeader();
+
+        if (!$token)
+            return null;
+
+        try {
+            $decoded = JWT::decode(
+                $token,
+                new Key($secret_key, 'HS256')
+            );
+
+            if (!isset($decoded->id))
+                return null;
+
+            return (int)$decoded->id;
+        }
+        catch (Throwable $error) {
+            return null;
+        }
+    }
+
+    function checkTokenValidity() {
+        $response = [];
+        $user_id = getAuthenticatedUserID();
         
-        if (!$token) {
-            $response['message'] = 'header autorizzazione mancante';
-            $response['successful'] = 0;
+        if ($user_id === null) {
+            $response['successful'] = false;
+            $response['message'] = 'Token non valido';
             return $response;
         }
 
         try {
-            $decoded = JWT::decode($token, new Key($secret_key, 'HS256'));
-            $response['message'] = 'token corretto';
-            $response['successful'] = 1;
 
             $pdo = getDbConnection();
             
-            $query = "SELECT user_id, username FROM users WHERE user_id = ?";
+            $query =   'SELECT user_id, username
+                        FROM users
+                        WHERE user_id = ?';
+            
             $stmt = $pdo->prepare($query);
             $stmt->execute([$user_id]);
+
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$result) {
+                $response['successful'] = false;
+                $response['message'] = 'Utente non trovato';
+                return $response;
+            }
+
+            $response['successful'] = true;
             $response['user_id'] = $result['user_id'];
             $response['username'] = $result['username'];
 
             return $response;
         }
-        catch(Exception $e) {
-            $response['message'] = 'token non valido';
-            $response['successful'] = 0;
-            return $response;
+        catch(Throwable $error) {
+            throw $error;
         }
     }
 

@@ -41,32 +41,34 @@
             return null;
     }
 
-    function getListDetails($listID) {
+    function getListDetails($user_id, $listID) {
         $response = [];
         $pdo = getDbConnection();
 
         $query =   'SELECT list_name, last_modified, list_version
                     FROM shopping_lists
-                    WHERE list_id = ?';
+                    WHERE list_id = ? AND user_id = ?';
         
         $stmt = $pdo->prepare($query);
-        $stmt->execute([$listID]);
+        $stmt->execute([$listID, $user_id]);
         $response['list_details'] = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $response;
     }
 
-    function getListItemsByListID($listID) {
+    function getListItemsByListID($user_id, $listID) {
         $response = [];
         $pdo = getDbConnection();
 
         $query =   'SELECT *
-                    FROM shopping_list_items
-                    WHERE list_id = ?
-                    ORDER BY item_pos_in_list';
+                    FROM shopping_list_items AS items
+                    INNER JOIN shopping_lists AS lists
+                        ON lists.list_id = items.list_id
+                    WHERE items.list_id = ? AND lists.user_id = ?
+                    ORDER BY items.item_pos_in_list';
                     
         $stmt = $pdo->prepare($query);
-        $stmt->execute([$listID]);
+        $stmt->execute([$listID, $user_id]);
         $query_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if ($query_result) {

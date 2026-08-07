@@ -6,26 +6,51 @@ import { useGlobalContext } from "../context/GlobalContext";
 export default function LocalStorageHook() {
     const { localStorageDbName } = useGlobalContext();
     const [localStorageDb, setLocalStorageDb] = useState({});
+    const [isStorageLoaded, setIsStorageLoaded] = useState(false);
     
     useEffect(() => {
-        async function loadStorageData() {
-            let initalDbData = await Preferences.get({ key: localStorageDbName });
-            
-            if (initalDbData.value)
-                setLocalStorageDb(JSON.parse(initalDbData.value));
-        }
+        let cancelled = false;
+
+        (async () => {
+            try {
+                const initialDbData = await Preferences.get({ key: localStorageDbName });
+
+                if (!cancelled)
+                    setLocalStorageDb(initialDbData.value ? JSON.parse(initialDbData.value) : {});
+            }          
+            catch (error) {
+                console.error('Errore caricamento liste lcoali: ', error);
+
+                if (!cancelled)
+                    setLocalStorageDb({});
+            }  
+            finally {
+                if (!cancelled)
+                    setIsStorageLoaded(true);
+            }
+        })();
+
+        return () => { cancelled = true; };
         
-        loadStorageData();
-        
-        /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, []);
+    }, [localStorageDbName]);
 
     useEffect(() => {
-        if (localStorageDb && Object.keys(localStorageDb).length > 0)
-            Preferences.set({ key: localStorageDbName, value: JSON.stringify(localStorageDb) });
-        else
-            Preferences.remove({ key: localStorageDbName });
-    }, [localStorageDbName, localStorageDb]);
+        if (!isStorageLoaded)
+            return;
+
+        (async () =>{
+            try {
+                if (Object.keys(localStorageDb).length > 0) {
+                    await Preferences.set({ key: localStorageDbName, value: JSON.stringify(localStorageDb) });
+                }
+                else
+                    await Preferences.remove({ key: localStorageDbName });
+            }
+            catch (error) {
+                console.error('Errore salvataggio liste locali: ', error);
+            }
+        })();
+    }, [isStorageLoaded, localStorageDbName, localStorageDb]);
 
     return {
         localStorageDb,

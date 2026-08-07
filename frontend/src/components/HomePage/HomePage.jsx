@@ -14,8 +14,8 @@ import Header from '../Header/Header.jsx'
 import './HomePage.css'
 
 function HomePage() {
-    const { createConfirmPopup } = usePopup();
-    const { ROUTES, setCurrentListID } = useGlobalContext();
+    const { createConfirmPopup, setTextOnlyPopup } = usePopup();
+    const { ROUTES } = useGlobalContext();
     const { isUserLoggedIn } = useAuth();
     const { localStorageDb, setLocalStorageDb } = LocalStorageHook();
     const { getListsByUserID } = ReadOnlineDbHook();
@@ -24,15 +24,31 @@ function HomePage() {
     const [onlineDbData, setOnlineDbData] = useState([]);
 
     useEffect( () => {
-        if (isUserLoggedIn === false || isUserLoggedIn === true)
-            setHomePageLoaded(true);
+        if (isUserLoggedIn === undefined)
+            return;
 
-        if (isUserLoggedIn) {
-            (async () => {
-                setOnlineDbData( await getListsByUserID() );
-            })();
+        if (isUserLoggedIn === false) {
+            setHomePageLoaded(true);
+            return;
         }
-    }, [isUserLoggedIn, getListsByUserID]);
+
+        setHomePageLoaded(false);
+
+        (async () => {
+            try {
+                const lists = await getListsByUserID();
+                setOnlineDbData(lists ?? []);
+            }
+            catch (error) {
+                setOnlineDbData([]);
+                setTextOnlyPopup({ isErrorMessage: true, message: error?.message || 'Impossibile caricare le liste' });
+            }
+            finally {
+                setHomePageLoaded(true);
+            }
+        })();
+
+    }, [isUserLoggedIn, getListsByUserID, setTextOnlyPopup]);
 
     async function handleDeleteList(index, list_id) {
         if (isUserLoggedIn) {
@@ -88,7 +104,7 @@ function HomePage() {
                             Object.values(onlineDbData).length > 0 ? (
                                 Object.values(onlineDbData).map( (element, index) => (
                                     <div className='single-list_wrapper' key={index}>
-                                        <Link to={`${ROUTES.LIST_DETAILS}/${encodeURIComponent(element.list_name)}`} className='list-link' onClick={() => { setCurrentListID(element.list_id); }}>
+                                        <Link to={`${ROUTES.LIST_DETAILS}/${element.list_id}/`+ encodeURIComponent(element.list_name)} className='list-link'>
                                             {element.list_name}
                                         </Link>
                                         <button className='delete_button' onClick={() => handleDeleteList(index, element.list_id)}>Elimina</button>

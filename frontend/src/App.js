@@ -33,6 +33,7 @@ function AppContent() {
     <Routes>
       <Route path={ROUTES.HOME} element={<HomePage />} />
       <Route path={ROUTES.NEW_LIST} element={<NewList />} />
+      <Route path={`${ROUTES.LIST_DETAILS}/:listID/:listName`} element={<ListDetails />} />
       <Route path={`${ROUTES.LIST_DETAILS}/:listName`} element={<ListDetails />}/>
       <Route path={ROUTES.LOGIN_PAGE} element={<LoginPage />}/>
     </Routes>

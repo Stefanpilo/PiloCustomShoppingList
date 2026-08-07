@@ -49,7 +49,7 @@ function Header({ navBar }) {
                 )}
                 {!isUserLoggedIn ? (
                     (location.pathname === ROUTES.LOGIN_PAGE && location.state?.operationType === 'login') ? (
-                        <Link id="signup_button" className="link_button default_button" to={ROUTES.SIGNUP_PAGE} state={{ operationType: 'signup' }}>REGISTRATI</Link>
+                        <Link id="signup_button" className="link_button default_button" to={ROUTES.LOGIN_PAGE} state={{ operationType: 'signup' }}>REGISTRATI</Link>
                     )
                     : (
                         <Link id="login_button" className="link_button default_button" to={ROUTES.LOGIN_PAGE} state={{ operationType: 'login' }}>ACCEDI</Link>

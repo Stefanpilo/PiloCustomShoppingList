@@ -33,7 +33,7 @@
         return $response;
     }
 
-    function saveListChanges($list_id, $list_name, $list_version, $itemsToInsert, $itemsToUpdate, $itemsToDelete) {
+    function saveListChanges($user_id, $list_id, $list_name, $list_version, $itemsToInsert, $itemsToUpdate, $itemsToDelete) {
         $pdo = getDbConnection();
 
         $response = [
@@ -50,10 +50,10 @@
             $query =   'UPDATE shopping_lists
                         SET list_name = ?,
                             list_version = list_version + 1
-                        WHERE list_id = ? AND list_version = ?';
+                        WHERE list_id = ? AND user_id = ? AND list_version = ?';
 
             $stmt = $pdo->prepare($query);
-            $stmt->execute([$list_name, $list_id, $list_version]);
+            $stmt->execute([$list_name, $list_id, $user_id, $list_version]);
 
             if ($stmt->rowCount() !== 1) {
                 $pdo->rollBack();
@@ -205,17 +205,15 @@
     }
 
     
-    function deleteList($list_id) {
+    function deleteList($user_id, $list_id) {
         $response = [];
         $pdo = getDbConnection();
 
         $query = '  DELETE FROM shopping_lists
-                    WHERE list_id = ?';
+                    WHERE list_id = ? AND user_id = ?';
                     
         $stmt = $pdo->prepare($query);
-        $stmt->execute([
-            $list_id
-        ]);
+        $stmt->execute([$list_id, $user_id]);
 
         if ($stmt->rowCount() > 0) {
             $response['successful'] = true;

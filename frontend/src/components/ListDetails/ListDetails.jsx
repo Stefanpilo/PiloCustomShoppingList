@@ -32,8 +32,8 @@ function OnlineListHandler() {
     const [isListSaving, setIsListSaving] = useState(false);
     const navigate = useNavigate();
 
-    const { listName } = useParams();
-    const { currentListID, ROUTES } = useGlobalContext();
+    const { listID, listName } = useParams();
+    const { ROUTES } = useGlobalContext();
     const { setTextOnlyPopup } = usePopup();
     const { getListItemsByListID, getListDetails } = ReadOnlineDbHook();
     const { saveListChanges } = SaveOnlineDbHook();
@@ -68,28 +68,35 @@ function OnlineListHandler() {
     }, [onlineDbData]);
 
     useEffect(() => {
-        if (currentListID) {
+        const numericListID = Number(listID);
+
+        if (Number.isInteger(numericListID) && numericListID > 0) {
             (async () => {
                 const [items, details] = await Promise.all([
-                    getListItemsByListID(),
-                    getListDetails()
+                    getListItemsByListID(listID),
+                    getListDetails(listID)
                 ]);
                 setOnlineDbData(items);
                 setListDetails(details);
+                setNewListName(details.list_name);
                 setIsListOutdated(false);
+
+                if (details.list_name !== listName) {
+                    navigate( `${ROUTES.LIST_DETAILS}/${listID}/` + encodeURIComponent(details.list_name), { replace: true } );
+                }
             })();
         }
         else {
-            navigate('/');
+            navigate(ROUTES.HOME);
         }
-    }, [currentListID, getListItemsByListID, getListDetails, navigate]);
+    }, [listID, listName, getListItemsByListID, getListDetails, navigate, ROUTES]);
 
     useEffect(() => {
         if (!listDetails)
             return;
 
         const listDetailsCheckInterval = setInterval(async () => {
-            const currentListDetails = await getListDetails();
+            const currentListDetails = await getListDetails(listID);
             setIsListOutdated(currentListDetails.list_version !== listDetails.list_version);
         }, 5000);
 
@@ -97,14 +104,14 @@ function OnlineListHandler() {
             clearInterval(listDetailsCheckInterval);
         };
 
-    }, [getListDetails, listDetails]);
+    }, [listID, getListDetails, listDetails]);
 
 
     async function handleRefreshList() {
         setIsListUpdating(true);
 
-        const items = await getListItemsByListID();
-        const details = await getListDetails();
+        const items = await getListItemsByListID(listID);
+        const details = await getListDetails(listID);
 
         if (items && details) {
             setOnlineDbData(items);
@@ -122,7 +129,7 @@ function OnlineListHandler() {
             item_quantity: 1,
             item_checked: false,
             item_pos_in_list: currentDbData.items.length,
-            list_id: currentListID
+            list_id: listID
         };
 
         setCurrentDbData((prev) => ({
@@ -328,14 +335,14 @@ function OnlineListHandler() {
 
     async function saveList() {
         setIsListSaving(true);
-        const hasListNameChanged = newListName !== listName;
+        const hasListNameChanged = newListName !== listDetails.list_name;
         const hasListItemsChanged = updates.added.length > 0 || updates.modified.length > 0 || updates.removed.length > 0;
         if (!hasListNameChanged && !hasListItemsChanged) {
             setIsListSaving(false);
             return;
         }
         
-        let currentListDetails = await getListDetails();
+        let currentListDetails = await getListDetails(listID);
 
         //Controllo errori
         if (currentListDetails.list_version !== listDetails.list_version) {
@@ -369,7 +376,7 @@ function OnlineListHandler() {
             listVersion: listDetails.list_version
         };
 
-        let response = await saveListChanges(updatesToSave);
+        let response = await saveListChanges(listID, updatesToSave);
 
         setCurrentDbData( (prev) => ({
             ...prev,
@@ -386,7 +393,7 @@ function OnlineListHandler() {
                 modified: []
             }));
             await handleRefreshList();
-            setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + encodeURIComponent(newListName)});
+            setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: `${ROUTES.LIST_DETAILS}/${listID}/` +  encodeURIComponent(newListName)});
         }
         else {
             setTextOnlyPopup({ isErrorMessage: true, message: 'Errore durante il salvataggio della lista.' });

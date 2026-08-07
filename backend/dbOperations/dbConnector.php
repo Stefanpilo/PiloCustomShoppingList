@@ -1,5 +1,6 @@
 <?php
-    ini_set('display_errors', 1);
+    ini_set('display_errors', 0);
+    ini_set('log_errors', 1);
     error_reporting(E_ALL);
 
     $dbCredentials = require_once('dbCredentials.php');
@@ -18,10 +19,9 @@
             $conn->exec('set names utf8mb4');
             return $conn;
         }
-        catch (PDOException $e) {
-            error_log('Errore connessione: ' . $e->getMessage());
-            echo json_encode(['error' => 'Errore connessione: ']);
-            exit();
+        catch (PDOException $error) {
+            error_log('Errore connessione: ' . $error->getMessage());
+            throw $error;
         }
     }
 ?>

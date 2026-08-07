@@ -1,5 +1,4 @@
-import { createContext, useState, useContext, useEffect } from "react";
-import { Preferences } from "@capacitor/preferences";
+import { createContext, useContext } from "react";
 
 const GlobalContext = createContext();
 
@@ -16,10 +15,8 @@ export function GlobalProvider({ children }) {
     const backendApiEndpoint = rootDirectory + '/backend/APIEndpoint.php';
     const localStorageDbName = 'piloCustomShoppingList';
     const localStorageUserID = localStorageDbName + 'UserID';
-    const localStorageTempListID = localStorageDbName + 'TempListID';
     const localStorageAuthToken = localStorageDbName + 'Token';
 
-    const [currentListID, setCurrentListID] = useState(null);
     const requestTypes = {
         dbCall: 'dbOperation',
         authentication: 'authentication'
@@ -31,33 +28,9 @@ export function GlobalProvider({ children }) {
         backendApiEndpoint,
         localStorageDbName,
         localStorageUserID,
-        localStorageTempListID,
         localStorageAuthToken,
-        currentListID,
-        setCurrentListID,
         requestTypes
     };
-
-    useEffect(() => {
-        async function loadStorageData() {
-            const currentListIDData = await Preferences.get({ key: localStorageTempListID });
-
-            if (currentListIDData?.value)
-                setCurrentListID(currentListIDData.value);
-        }
-
-        loadStorageData();
-        /* eslint-disable-next-line react-hooks/exhaustive-deps */
-    }, []);
-
-    useEffect(() => {
-        if (currentListID && localStorageTempListID)
-            Preferences.set({ key: localStorageTempListID, value: currentListID });
-
-        if (currentListID === null)
-            Preferences.remove({ key: localStorageTempListID });
-    }, [currentListID, localStorageTempListID])
-
 
     return (
         <GlobalContext.Provider value={ contextValue }>

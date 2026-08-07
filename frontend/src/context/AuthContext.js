@@ -1,4 +1,5 @@
 import { createContext, useState, useContext, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { Preferences } from '@capacitor/preferences';
 
 import { useGlobalContext } from "./GlobalContext";
@@ -7,12 +8,13 @@ import { usePopup } from "../popups/PopupContext";
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-    const { localStorageUserID, backendApiEndpoint, localStorageAuthToken, requestTypes } = useGlobalContext();
+    const { localStorageUserID, backendApiEndpoint, localStorageAuthToken, requestTypes, ROUTES } = useGlobalContext();
     const { setTextOnlyPopup } = usePopup();
     const [isUserLoggedIn, setIsUserLoggedIn] = useState();
     const [username, setUsername] = useState();
     const [userID, setUserID] = useState(null);
     const [authToken, setAuthToken] = useState(null);
+    const navigate = useNavigate();
 
 
     const registerUser = useCallback( async (username, password) => {
@@ -103,6 +105,8 @@ export function AuthProvider({ children }) {
         setUserID(null);
         setAuthToken(null);
         setIsUserLoggedIn(false);
+
+        navigate(ROUTES.HOME);
     }
 
 

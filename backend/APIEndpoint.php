@@ -1,5 +1,4 @@
 <?php
-    file_put_contents('debug.txt', 'Script eseguito');
     header('Content-Type: application/json');
     $requestParams = json_decode(file_get_contents('php://input'), true);
     
@@ -7,7 +6,8 @@
         $response = array();
         
         if ($requestParams['requestType'] === 'dbOperation') {
-            require_once('dbOperations/dbQueryManager.php');
+            require_once __DIR__ . '/dbOperations/dbReadOperations.php';
+            require_once __DIR__ . '/dbOperations/dbWriteOperations.php';
 
             if (isset($requestParams['action'])) {
                 $action = $requestParams['action'];
@@ -39,7 +39,7 @@
                         $response['result'] = insertNewListWithItems($user_id, $list_name, $list_items);
                     break;
 
-                    case 'updateListName':
+                    /*case 'updateListName':
                         $user_id = $requestParams['userID'];
                         $list_id = $requestParams['listID'];
                         $list_name = $requestParams['listName'];
@@ -47,19 +47,10 @@
                     break;
 
                     case 'updateListItems':
-                        $response['result-insert'] = [];
-                        $response['result-update'] = [];
-                        $response['result-delete'] = [];
-                        $list_id = $requestParams['listID'];
-                        foreach($requestParams['data-insert'] as $item) {
-                            $response['result-insert'][] = insertNewListItem($list_id, $item);
-                        }
-                        foreach($requestParams['data-update'] as $item) {
-                            $response['result-update'][] = updateListItem($list_id, $item);
-                        }
-                        foreach($requestParams['data-delete'] as $item) {
-                            $response['result-delete'][] = deleteListItem($list_id, $item);
-                        }
+                        $response['result'] = applyListItemsChanges($requestParams['listID'], $requestParams['listVersion'], $requestParams['data-insert'], $requestParams['data-update'], $requestParams['data-delete']);
+                    break;*/
+                    case 'saveListChanges':
+                        $response['result'] = saveListChanges($requestParams['listID'], $requestParams['listName'], $requestParams['listVersion'], $requestParams['data-insert'], $requestParams['data-update'], $requestParams['data-delete']);
                     break;
 
                     case 'deleteList':

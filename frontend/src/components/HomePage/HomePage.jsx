@@ -40,7 +40,7 @@ function HomePage() {
             const confirmPopupResponse = await createConfirmPopup('Sei sicuro di voler eliminare la lista ' + listToRemove.list_name + '?');
             if (confirmPopupResponse) {
                 const deleteListResponse = await deleteList(listToRemove.list_id);
-                if (deleteListResponse?.result)
+                if (deleteListResponse?.successful)
                     setOnlineDbData((prev) => prev.filter((_, idx) => idx !== index));
                 else {
                     console.log(deleteListResponse);

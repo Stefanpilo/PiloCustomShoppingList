@@ -19,7 +19,7 @@
             return $conn;
         }
         catch (PDOException $e) {
-            error_log('Errore connessione: ' . $e.getMessage());
+            error_log('Errore connessione: ' . $e->getMessage());
             echo json_encode(['error' => 'Errore connessione: ']);
             exit();
         }

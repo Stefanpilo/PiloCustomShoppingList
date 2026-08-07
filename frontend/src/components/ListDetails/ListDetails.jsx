@@ -36,7 +36,7 @@ function OnlineListHandler() {
     const { currentListID, ROUTES } = useGlobalContext();
     const { setTextOnlyPopup } = usePopup();
     const { getListItemsByListID, getListDetails } = ReadOnlineDbHook();
-    const { updateListName, updateListItems } = SaveOnlineDbHook();
+    const { saveListChanges } = SaveOnlineDbHook();
     
     const [onlineDbData, setOnlineDbData] = useState([]);
     const [currentDbData, setCurrentDbData] = useState([]);
@@ -104,7 +104,8 @@ function OnlineListHandler() {
         setIsListUpdating(true);
 
         const items = await getListItemsByListID();
-        const details = setListDetails(await getListDetails());
+        const details = await getListDetails();
+
         if (items && details) {
             setOnlineDbData(items);
             setListDetails(details);
@@ -327,11 +328,19 @@ function OnlineListHandler() {
 
     async function saveList() {
         setIsListSaving(true);
+        const hasListNameChanged = newListName !== listName;
+        const hasListItemsChanged = updates.added.length > 0 || updates.modified.length > 0 || updates.removed.length > 0;
+        if (!hasListNameChanged && !hasListItemsChanged) {
+            setIsListSaving(false);
+            return;
+        }
+        
         let currentListDetails = await getListDetails();
 
         //Controllo errori
         if (currentListDetails.list_version !== listDetails.list_version) {
             setTextOnlyPopup({ isErrorMessage: true, message: 'Non si ha la versione aggiornata della lista.\nPremere ok per ricaricare.', shouldRefreshPage: true });
+            setIsListSaving(false);
             return;
         }
 
@@ -347,24 +356,20 @@ function OnlineListHandler() {
             return;
         }
         //Fine controllo errori
-        
-
-        let listNameUpdatedResponse = false;
-        if (newListName !== listName)
-            listNameUpdatedResponse = await updateListName(newListName);
 
         const updatedList = (item) => ({
             ...item,
             item_quantity: item.item_quantity === '' ? 1 : item.item_quantity
         });
-
         const updatesToSave = {
             added: updates.added.map(updatedList),
             modified: updates.modified.map(updatedList),
-            removed: updates.removed
+            removed: updates.removed,
+            listName: newListName,
+            listVersion: listDetails.list_version
         };
 
-        let response = await updateListItems(updatesToSave);
+        let response = await saveListChanges(updatesToSave);
 
         setCurrentDbData( (prev) => ({
             ...prev,
@@ -372,16 +377,19 @@ function OnlineListHandler() {
         }))
 
 
-        if (response || listNameUpdatedResponse) {
-            setUpdates((prev) => ({
+        if (response?.conflict)
+            setTextOnlyPopup({ isErrorMessage: true, message: 'Non si ha la versione aggiornata della lista.\nPremere ok per ricaricare.', shouldRefreshPage: true });
+        else if (response?.successful) {
+            setUpdates(() => ({
                 added: [],
                 removed: [],
                 modified: []
             }));
+            await handleRefreshList();
             setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + encodeURIComponent(newListName)});
         }
         else {
-            console.log('nessun aggiornamento da fare');
+            setTextOnlyPopup({ isErrorMessage: true, message: 'Errore durante il salvataggio della lista.' });
         }
 
 

@@ -118,6 +118,15 @@ function OnlineListHandler() {
 
     }, [listID, getListDetails, listDetails]);
 
+    function formatDateTime(dateTime) {
+        if (!dateTime)
+            return '';
+
+        const utcDateTime = dateTime.replace(' ', 'T') + 'Z';
+
+        return new Date(utcDateTime).toLocaleString('it-IT', { timeZone: 'Europe/Rome' });
+    }
+
 
     async function handleRefreshList() {
         setIsListUpdating(true);
@@ -464,7 +473,7 @@ function OnlineListHandler() {
                             ) :
                             (
                                 <span className="list-versioning_updated">Ultima modifica: 
-                                    <time>{listDetails.last_modified}</time>
+                                    <time>{formatDateTime(listDetails.last_modified)}</time>
                                 </span>
                             )}
                         </div>

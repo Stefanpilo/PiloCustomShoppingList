@@ -16,7 +16,8 @@
         try {
             $conn = new PDO("mysql:host=$dbHostName; dbname=$dbName", $dbUsername, $dbPassword);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $conn->exec('set names utf8mb4');
+            $conn->exec('SET names utf8mb4');
+            $conn->exec("SET time_zone = '+00:00'");
             return $conn;
         }
         catch (PDOException $error) {

@@ -35,28 +35,21 @@ function OnlineListHandler() {
     const { listName } = useParams();
     const { currentListID, ROUTES } = useGlobalContext();
     const { setTextOnlyPopup } = usePopup();
-    const { getListItemsByListID, getListLastModifiedDate } = ReadOnlineDbHook();
+    const { getListItemsByListID, getListDetails } = ReadOnlineDbHook();
     const { updateListName, updateListItems } = SaveOnlineDbHook();
     
     const [onlineDbData, setOnlineDbData] = useState([]);
     const [currentDbData, setCurrentDbData] = useState([]);
     const [newListName, setNewListName] = useState(listName);
-    const [listLastModifiedDate, setListLastModifiedDate] = useState();
+    const [listDetails, setListDetails] = useState(null);
+    const [isListOutdated, setIsListOutdated] = useState(false);
+    const [isListUpdating, setIsListUpdating] = useState(false);
     const [updates, setUpdates] = useState({
         added: [],
         removed: [],
         modified: []
     });
 
-
-    useEffect(() => {
-        if ( onlineDbData && listName && (onlineDbData.list_name_obj === false) ) {
-            navigate('/');
-        }
-        else if ( onlineDbData && listName && (onlineDbData.list_name_obj && (onlineDbData.list_name_obj.list_name && onlineDbData.list_name_obj.list_name !== listName)) ) {
-            navigate('/');
-        }
-    }, [onlineDbData, listName, navigate]);
 
     useEffect(() => {
         if (onlineDbData?.items) {
@@ -77,19 +70,49 @@ function OnlineListHandler() {
     useEffect(() => {
         if (currentListID) {
             (async () => {
-                const [items, lastModified] = await Promise.all([
+                const [items, details] = await Promise.all([
                     getListItemsByListID(),
-                    getListLastModifiedDate()
+                    getListDetails()
                 ]);
                 setOnlineDbData(items);
-                setListLastModifiedDate(lastModified);
+                setListDetails(details);
+                setIsListOutdated(false);
             })();
         }
         else {
             navigate('/');
         }
-    }, [currentListID, getListItemsByListID, getListLastModifiedDate, navigate]);
+    }, [currentListID, getListItemsByListID, getListDetails, navigate]);
 
+    useEffect(() => {
+        if (!listDetails)
+            return;
+
+        const listDetailsCheckInterval = setInterval(async () => {
+            const currentListDetails = await getListDetails();
+            setIsListOutdated(currentListDetails.list_version !== listDetails.list_version);
+        }, 5000);
+
+        return () => {
+            clearInterval(listDetailsCheckInterval);
+        };
+
+    }, [getListDetails, listDetails]);
+
+
+    async function handleRefreshList() {
+        setIsListUpdating(true);
+
+        const items = await getListItemsByListID();
+        const details = setListDetails(await getListDetails());
+        if (items && details) {
+            setOnlineDbData(items);
+            setListDetails(details);
+            setIsListOutdated(false);
+        }
+
+        setIsListUpdating(false);
+    }
 
     function addRow() {
         const newItem = {
@@ -304,10 +327,10 @@ function OnlineListHandler() {
 
     async function saveList() {
         setIsListSaving(true);
-        let currentListLastModifiedDate = await getListLastModifiedDate();
+        let currentListDetails = await getListDetails();
 
         //Controllo errori
-        if (currentListLastModifiedDate !== listLastModifiedDate) {
+        if (currentListDetails.list_version !== listDetails.list_version) {
             setTextOnlyPopup({ isErrorMessage: true, message: 'Non si ha la versione aggiornata della lista.\nPremere ok per ricaricare.', shouldRefreshPage: true });
             return;
         }
@@ -350,14 +373,11 @@ function OnlineListHandler() {
 
 
         if (response || listNameUpdatedResponse) {
-            //console.log('salvato. risposta:');
-            //console.log(response);
             setUpdates((prev) => ({
                 added: [],
                 removed: [],
                 modified: []
             }));
-            setListLastModifiedDate( await getListLastModifiedDate() );
             setTextOnlyPopup({ message: 'Lista salvata con successo', destinationLink: ROUTES.LIST_DETAILS + '/' + encodeURIComponent(newListName)});
         }
         else {
@@ -381,10 +401,21 @@ function OnlineListHandler() {
                     <h1 className="page-h1" contentEditable suppressContentEditableWarning={true} onInput={(e) => setNewListName(e.target.textContent)}>
                         {listName}
                     </h1>
-                    {/* TO DEL <button onClick={() => {console.log(currentDbData); console.log(updates);}}>show list</button> */}
                     {!pageLoaded ?
                         <div style={{marginTop: 50}}>Caricamento...</div>
                     : (<>
+                        <div id="list-versioning_wrapper">
+                            {isListOutdated ? (
+                                <span className="list-versioning_outdated">Lista non aggiornata. Aggiorna
+                                    <button className="list-versioning_refresh" onClick={handleRefreshList}>{isListUpdating ? '⟳' : '↻' }</button>
+                                </span>
+                            ) :
+                            (
+                                <span className="list-versioning_updated">Ultima modifica: 
+                                    <time>{listDetails.last_modified}</time>
+                                </span>
+                            )}
+                        </div>
                         <div id="list-details-table-header">
                             <span style={{gridColumn: 3}}>Nome elemento</span>
                             <span>Quantità</span>

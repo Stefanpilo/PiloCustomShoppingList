@@ -24,8 +24,8 @@
                         $response['result'] = getListsByUserID($requestParams['userID']);
                     break;
 
-                    case 'getListLastModifiedDate':
-                        $response['result'] = getListLastModifiedDate($requestParams['listID']);
+                    case 'getListDetails':
+                        $response['result'] = getListDetails($requestParams['listID']);
                     break;
 
                     case 'getListItemsByListID':

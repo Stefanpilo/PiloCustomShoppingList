@@ -40,23 +40,17 @@
             return null;
     }
 
-    function getListLastModifiedDate($listID) {
+    function getListDetails($listID) {
         $response = [];
         $pdo = getDbConnection();
 
-        $query =   'SELECT last_modified
+        $query =   'SELECT list_name, last_modified, list_version
                     FROM shopping_lists
                     WHERE list_id = ?';
+        
         $stmt = $pdo->prepare($query);
         $stmt->execute([$listID]);
-        $row = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($row) {
-            $response['successful'] = true;
-            $response['last_modified'] = $row['last_modified'];
-        }
-        else
-            $response['successful'] = false;
+        $response['list_details'] = $stmt->fetch(PDO::FETCH_ASSOC);
 
         return $response;
     }
@@ -68,21 +62,20 @@
         $query =   'SELECT *
                     FROM shopping_list_items
                     WHERE list_id = ?
-                    GROUP BY item_pos_in_list';
+                    ORDER BY item_pos_in_list';
+                    
         $stmt = $pdo->prepare($query);
         $stmt->execute([$listID]);
-        $response['items'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        
-        $query =   'SELECT list_name, last_modified
-                    FROM shopping_lists
-                    WHERE list_id = ?';
-        $stmt = $pdo->prepare($query);
-        $stmt->execute([$listID]);
-        $query_result = $stmt->fetch(PDO::FETCH_ASSOC);
-        $response['list_name_obj'] = $query_result['list_name'];
+        $query_result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        $response['last_modified'] = $query_result['last_modified'];
-
+        if ($query_result) {
+            $response['successful'] = true;
+        }
+        else {
+            $response['successful'] = false;
+        }
+                
+        $response['items'] = $query_result;
         return $response;
     }
 

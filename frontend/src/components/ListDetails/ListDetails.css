@@ -9,16 +9,43 @@
     outline: none;
 }
 
-#list-details_root .list-wrapper {
+#list-details_root #list-versioning_wrapper {
+    margin-top: 10px;
+    text-align: center;
+}
+
+#list-details_root #list-versioning_wrapper .list-versioning_outdated {
     display: flex;
-    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
 }
 
-#list-details_root .item_wrapper.checked {
-    background: green;
+#list-details_root #list-versioning_wrapper .list-versioning_refresh {
+    width: 1em;
+    padding: 0;
+    background: none;
+    border: none;
 }
 
-#list-details-table-header {
+#list-details_root #list-versioning_wrapper :is(.list-versioning_outdated, .list-versioning_refresh) {
+    font-size: 18px;
+    line-height: 20px;
+    color: red;
+}
+
+#list-details_root #list-versioning_wrapper .list-versioning_updated {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    column-gap: 10px;
+    font-size: 18px;
+    line-height: 20px;
+    color: green;
+}
+
+#list-details_root #list-details-table-header {
     margin-top: 50px;
     display: grid;
     grid-template-columns: var(--grid-columns-size-mobile);
@@ -26,7 +53,7 @@
     font-size: 1.1em;
 }
 
-#list-details-table-body {
+#list-details_root #list-details-table-body {
     margin-top: 10px;
     display: flex;
     flex-direction: column;
@@ -39,7 +66,6 @@
     align-items: center;
     grid-template-columns: var(--grid-columns-size-mobile);
     gap: 7px;
-    position: relative;
 }
 
 #list-details_root .list-item_wrapper .move-row-buttons_wrapper {
@@ -73,7 +99,7 @@
     background: green;
 }
 
-#list-details_root .toggle-check-item_button, #list-details_root .remove-row_button {
+#list-details_root :is(.toggle-check-item_button, .remove-row_button) {
     width: 20px;
     height: 20px;
     padding: 0;
@@ -86,16 +112,15 @@
 
 #list-details_root .remove-row_button {
     display: flex;
-    right: -30px;
     color: red;
 }
 
-#list-details_root .toggle-check-item_button img, #list-details_root .remove-row_button img {
+#list-details_root :is(.toggle-check-item_button img, .remove-row_button img) {
     width: 100%;
     height: 100%;
 }
 
-#list-details_root .item-name, #list-details_root .item-quantity {
+#list-details_root :is(.item-name, .item-quantity) {
     padding: 5px;
     font-size: var(--mobile-default-font-size);
     line-height: var(--mobile-default-line-height);
@@ -124,7 +149,12 @@
 }
 
 @media all and (min-width: 768px) {
-    #list-details-table-header {
+    #list-details_root #list-versioning_wrapper :is(.list-versioning_outdated, .list-versioning_refresh, .list-versioning_updated) {
+        font-size: 20px;
+        line-height: 22px;
+    }
+
+    #list-details_root #list-details-table-header {
         grid-template-columns: var(--grid-columns-size-desktop);
         gap: 10px;
     }
@@ -134,14 +164,14 @@
         gap: 10px;
     }
 
-    #list-details_root .remove-row_button, #list-details_root .toggle-check-item_button {
+    #list-details_root :is(.remove-row_button, .toggle-check-item_button) {
         width: 25px;
         height: 25px;
         font-size: var(--desktop-default-font-size);
         line-height: var(--desktop-default-line-height);
     }
 
-    #list-details_root .item-name, #list-details_root .item-quantity {
+    #list-details_root :is(.item-name, .item-quantity) {
         font-size: var(--desktop-default-font-size);
         line-height: var(--desktop-default-line-height);
     }

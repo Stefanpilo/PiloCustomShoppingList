@@ -44,11 +44,10 @@ function ReadOnlineDBHook(dataType) {
         .catch( error => { console.error('fetch error (get list items by list id):'); console.error(error); } );
     }, [requestTypes, currentListID, backendApiEndpoint]);
 
-
-    const getListLastModifiedDate = useCallback(() => {
+    const getListDetails = useCallback(() => {
         let dataToSend = {
             requestType: requestTypes.dbCall,
-            action: 'getListLastModifiedDate',
+            action: 'getListDetails',
             listID: currentListID
         };
 
@@ -58,8 +57,8 @@ function ReadOnlineDBHook(dataType) {
             body: JSON.stringify(dataToSend)
         })
         .then( response => response.ok ? response.json() : '' )
-        .then( data => data.result.last_modified )
-        .catch( error => { console.error('fetch error (get list last modified date):'); console.error(error); } );
+        .then( data => data.result.list_details )
+        .catch( error => { console.error('fetch error (get list details):'); console.error(error); } );
     }, [requestTypes, currentListID, backendApiEndpoint]);
 
     return {
@@ -67,7 +66,7 @@ function ReadOnlineDBHook(dataType) {
         setOnlineDbData,
         getListsByUserID,
         getListItemsByListID,
-        getListLastModifiedDate
+        getListDetails
     };
 }
 

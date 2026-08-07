@@ -150,19 +150,6 @@ export function AuthProvider({ children }) {
     }, []);
 
     useEffect(() => {
-        /* infinityfree forces the cookie "__test", but sometimes it doesn't generate cause of a bug with a service worker
-        /* if the bug occurs, every service worker is removed and the page is refreshed to force the generation of the cookie
-        /* this should not trigger if offline (localhost)
-        */
-       if ( !(window.location.host.includes('localhost')) && (!document.cookie.includes('__test=')) && ('serviceWorker' in navigator) ) {
-            navigator.serviceWorker.getRegistrations().then(registrations => {
-                Promise.all(registrations.map(registration => registration.unregister()))
-                .then(() => window.location.reload());
-            });
-           }
-    }, []);
-
-    useEffect(() => {
         //To save userID and authToken on localStorage when they change in the app
         if (userID)
             Preferences.set({ key: localStorageUserID, value: userID });

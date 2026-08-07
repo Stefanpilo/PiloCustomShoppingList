@@ -109,8 +109,14 @@ function OnlineListHandler() {
             return;
 
         const listDetailsCheckInterval = setInterval(async () => {
-            const currentListDetails = await getListDetails(listID);
-            setIsListOutdated(currentListDetails.list_version !== listDetails.list_version);
+            try {
+                const currentListDetails = await getListDetails(listID);
+                setIsListOutdated(currentListDetails.list_version !== listDetails.list_version);
+            }
+            catch (error) {
+                if (error.code !== 'INFINITYFREE_CHALLENGE')
+                    console.error('Errore durante il controllo della lista: ', error);
+            }
         }, 5000);
 
         return () => {
